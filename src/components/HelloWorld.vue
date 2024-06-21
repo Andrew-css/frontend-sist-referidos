@@ -8,14 +8,18 @@ function goToFormulario() {
   router.push(`/formulario`);
 }
 
+function goToReseñas() {
+  router.push(`/resena`);
+}
+
 
 </script>
 
 <template>
   <div class="main">
     <div class="containerr">
-      <a class="btn" @click="goToFormulario()">Ir al formulario</a>
-      <a class="btn" href="">Ver reseñas</a>
+      <a class="btn" @click="goToFormulario()">Responder formulario</a>
+      <a class="btn" @click="goToReseñas()">Ver reseñas</a>
 
     </div>
   </div>
@@ -35,6 +39,7 @@ function goToFormulario() {
   display: flex;
   justify-content: space-between;
   width: 20%;
+  gap: 50px;
 }
 
 .btn {

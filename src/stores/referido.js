@@ -3,6 +3,10 @@ import {ref} from 'vue'
 import { defineStore } from "pinia";
 
 const modelo = "referido";
+const estatus = ref("");
+const validacion = ref("");
+const nuevoReferido = ref("");
+
 
 export const useStoreReferido = defineStore(modelo, () => {
   const referidos = ref([]);
@@ -12,6 +16,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       const response = await axios.get(`${modelo}/all`);
       console.log(response);
       referidos.value = response.data;
+      estatus.value = response.status;
       return response.data;
     } catch (error) {
       console.log(error);
@@ -21,18 +26,21 @@ export const useStoreReferido = defineStore(modelo, () => {
   const agregar = async (data) => {
     try {
       const response = await axios.post(`${modelo}/registro`, data);
-      console.log(response);
-
+      console.log("hola soy nuevo referido",response);
+      estatus.value = response.status;
+      nuevoReferido.value = response.data._id
+      console.log("soy nuevo referido", nuevoReferido)
       return response.data;
     } catch (error) {
       console.log(error);
+      validacion.value = error.response.data.error
     }
   };
 
   const editar = async (id, data) => {
     try {
-     
       const response = await axios.put(`${modelo}/editar/${id}`, data);
+      estatus.value = response.status;
       console.log(response);
       return response.data;
     } catch (error) {
@@ -60,5 +68,5 @@ export const useStoreReferido = defineStore(modelo, () => {
     }
   };
 
-  return { getAll, agregar, editar, activar, inactivar, referidos };
+  return { getAll, agregar, editar, activar, inactivar, referidos, estatus, validacion, nuevoReferido };
 });

@@ -1,22 +1,23 @@
 <script setup>
 import { ref } from 'vue'
-import { useStoreReferido } from '../stores/referido.js'
-import { useRouter } from 'vue-router';
+import { useStoreReferido } from '../stores/referido.js';
+import { useStoreReferente } from '../stores/referente.js';
 
-let router = useRouter();
+const useReferidos = useStoreReferido();
+const useReferentes = useStoreReferente();
 
 const nombre = ref("");
 const cedula = ref("");
 const correo = ref("");
 const telefono = ref("");
-const opinion = ref("");
-const useReferidos = useStoreReferido();
+const idReferid = ref(useReferidos.nuevoReferido)
+
 
 
 async function getInfo() {
     try {
 
-        const response = await useReferidos.getAll()
+        const response = await useReferentes.getAll()
         console.log("hola soy referidos", response);
     } catch (error) {
         console.log(error);
@@ -25,21 +26,21 @@ async function getInfo() {
 
 getInfo();
 
-const agregarNuevoReferido = async () => {
+const agregarNuevoReferente = async () => {
     const data = {
         nombre: nombre.value,
         cedula: cedula.value,
         correo: correo.value,
         telefono: telefono.value,
-        opinion: opinion.value,
+        idReferido: idReferid.value,
     };
 
     try {
-        const response = await useReferidos.agregar(data);
+        const response = await useReferentes.agregar(data);
 
-        if (useReferidos.estatus === 200) {
-            goToFormReferente()
-        } else if (useReferidos.estatus === 400) {
+        if (useReferentes.estatus === 200) {
+            console.log("Reseña añadida")
+        } else if (useReferentes.estatus === 400) {
             return
         }
 
@@ -48,33 +49,32 @@ const agregarNuevoReferido = async () => {
     }
 }
 
-function goToFormReferente() {
-    router.push('/formref')
-}
+
+
+
+
+
 
 </script>
 
 <template>
     <div class="main">
         <div>
-            <form @submit.prevent="agregarNuevoReferido">
-                <h2 class="text-center">Formulario de datos</h2>
-                <h4 class="text-danger text-center fw-bold">{{ useReferidos.validacion }}</h4>
-                <label class="fw-bold mt-4" for="nombre">Digite su nombre</label>
+            <form @submit.prevent="agregarNuevoReferente">
+                <h2 class="text-center">Formulario de datos - Referente</h2>
+                <label class="fw-bold mt-4" for="nombre">Digite el nombre del referente</label>
                 <input type="text" id="nombre" name="nombre" v-model="nombre" required><br><br>
 
 
-                <label class="fw-bold" for="cedula">Digite su cédula</label>
+                <label class="fw-bold" for="cedula">Digite la cédula del referente</label>
                 <input type="number" id="cedula" name="cedula" v-model="cedula" required><br><br>
 
-                <label class="fw-bold" for="correo">Digite su correo electrónico</label>
+                <label class="fw-bold" for="correo">Digite el correo del referente</label>
                 <input type="email" id="correo" name="correo" v-model="correo" required><br><br>
 
-                <label class="fw-bold" for="telefono">Digite su teléfono</label>
+                <label class="fw-bold" for="telefono">Digite el telefono del referente</label>
                 <input type="number" id="telefono" name="telefono" v-model="telefono" required><br><br>
 
-                <label class="fw-bold" for="opinion">Digite su opinión respecto al servicio ofrecido</label>
-                <textarea id="opinion" name="opinion" v-model="opinion" required></textarea><br><br>
 
                 <input type="submit" value="Enviar">
             </form>
@@ -129,4 +129,5 @@ input[type="submit"] {
     input[type="submit"]:hover {
         background-color: #3e8e41;
     }
+
 </style>
