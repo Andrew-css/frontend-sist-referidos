@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useStoreReferido } from '../stores/referido.js'
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
@@ -7,6 +7,8 @@ import { useRouter } from 'vue-router';
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
 const cedula = ref("")
+const router = useRouter();
+const searchQuery = ref("");
 
 async function getInfo() {
   try {
@@ -20,6 +22,18 @@ async function getInfo() {
 
 getInfo();
 
+
+
+const filteredReferidos = computed(() => {
+  return useReferidos.referidos.filter(referido => {
+    return (
+      referido.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      referido.cedula.includes(searchQuery.value)
+    )
+  })
+})
+
+
 async function filtrarPorCedula() {
   try {
     const response = await useReferentes.getPorCedula(cedula.value)
@@ -29,19 +43,29 @@ async function filtrarPorCedula() {
   }
 }
 
+function home() {
+  router.push("/")
+}
 
 </script>
 
 <template>
-  <div class="container mt-5">
-    <div class="text-end mb-4">
+  <div class="container mt-5 ">
+    <div class="mb-4" style="display: flex; flex-direction: row; justify-content: start; gap: 20px;">
+
+    </div>
+    <div class="mb-4" style="display: flex; flex-direction: row; justify-content: end; gap: 20px;">
+      <input type="text" class="form-control" v-model="searchQuery" placeholder="Buscar por nombre o cédula">
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarCedula">
-        Buscar por cédula
+        Buscar referentes
+      </button>
+      <button class="btn btn-danger fw-bold" @click="home()">
+        Regresar
       </button>
     </div>
 
     <div class="row">
-
+      <h1 class="text-center mb-3">Opiniones de nuestros clientes</h1>
 
       <!-- Modal -->
       <div class="modal fade" id="modalBuscarCedula" tabindex="-1" aria-labelledby="modalBuscarCedulaLabel"
@@ -57,18 +81,18 @@ async function filtrarPorCedula() {
               <input type="text" class="form-control" v-model="cedula" placeholder="Ingrese la cédula">
             </div>
             <!-- Mostrar referentes -->
-            <div class="row">
-              <div class="col-md-4" v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
-                <div class="card mb-4">
+            <div class="row justify-content-center">
+              <div class="col-md-5" v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
+                <div class="card mb-5">
                   <div class="card-body">
                     <div class="d-flex align-items-center gap-2">
                       <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
-                      <h5 class="card-title ml-2">{{ referente.nombre }}</h5>
+                      <h5 class="card-title ml-2">Nombre referente: {{ referente.nombre }}</h5>
                     </div>
                     <p class="card-text">Cédula: {{ referente.cedula }}</p>
                     <p class="card-text">Correo: {{ referente.correo }}</p>
                     <p class="card-text">Teléfono: {{ referente.telefono }}</p>
-                    <p class="card-text">Opinión: {{ referente.opinion }}</p>
+                    <p class="card-text">Nombre referido: {{ referente.idReferido.nombre }}</p>
                   </div>
                 </div>
               </div>
@@ -81,7 +105,7 @@ async function filtrarPorCedula() {
           </div>
         </div>
       </div>
-      <div class="col-md-4" v-for="(referido, index) in useReferidos.referidos" :key="index">
+      <div class="col-md-4" v-for="(referido, index) in filteredReferidos" :key="index">
         <div class="card mb-4">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
@@ -126,5 +150,7 @@ async function filtrarPorCedula() {
   margin-bottom: 0;
 }
 
-
+#modalBuscarCedula {
+  width: 100%;
+}
 </style>

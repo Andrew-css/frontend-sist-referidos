@@ -2,9 +2,11 @@
 import { ref } from 'vue'
 import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
+import { useRouter } from 'vue-router';
 
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
+const router = useRouter();
 
 const nombre = ref("");
 const cedula = ref("");
@@ -39,6 +41,7 @@ const agregarNuevoReferente = async () => {
         const response = await useReferentes.agregar(data);
 
         if (useReferentes.estatus === 200) {
+            goToMsg();
             console.log("Reseña añadida")
         } else if (useReferentes.estatus === 400) {
             return
@@ -51,7 +54,9 @@ const agregarNuevoReferente = async () => {
 
 
 
-
+function goToMsg() {
+    router.push("/msg")
+}
 
 
 
@@ -118,16 +123,15 @@ textarea {
 }
 
 input[type="submit"] {
-        background-color: #4CAF50;
-        color: #fff;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
 
-    input[type="submit"]:hover {
-        background-color: #3e8e41;
-    }
-
+input[type="submit"]:hover {
+    background-color: #3e8e41;
+}
 </style>
