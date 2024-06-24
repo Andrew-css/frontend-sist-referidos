@@ -57,7 +57,7 @@ function home() {
     <div class="mb-4" style="display: flex; flex-direction: row; justify-content: end; gap: 20px;">
       <input type="text" class="form-control" v-model="searchQuery" placeholder="Buscar por nombre o cédula">
       <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarCedula">
-        Buscar referentes
+        Buscar por referente
       </button>
       <button class="btn btn-danger fw-bold" @click="home()">
         Regresar
@@ -89,10 +89,14 @@ function home() {
                       <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
                       <h5 class="card-title ml-2">Nombre referente: {{ referente.nombre }}</h5>
                     </div>
-                    <p class="card-text">Cédula: {{ referente.cedula }}</p>
-                    <p class="card-text">Correo: {{ referente.correo }}</p>
-                    <p class="card-text">Teléfono: {{ referente.telefono }}</p>
-                    <p class="card-text">Nombre referido: {{ referente.idReferido.nombre }}</p>
+                    <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Cédula:</span> {{
+                      referente.cedula }}</p>
+                    <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Correo:</span> {{
+                      referente.correo }}</p>
+                    <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Teléfono:</span> {{
+                      referente.telefono }}</p>
+                    <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Nombre referido:</span> {{
+                      referente.idReferido.nombre }}</p>
                   </div>
                 </div>
               </div>
@@ -150,7 +154,7 @@ function home() {
   margin-bottom: 0;
 }
 
-#modalBuscarCedula {
-  width: 100%;
+.form-control {
+  border: 1px solid #282727;
 }
 </style>

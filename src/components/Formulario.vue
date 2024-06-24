@@ -56,7 +56,7 @@ function goToFormReferente() {
 
 <template>
     <div class="main">
-        <div>
+        <div class="container">
             <form @submit.prevent="agregarNuevoReferido">
                 <h2 class="text-center">Formulario de datos</h2>
                 <h4 class="text-danger text-center fw-bold">{{ useReferidos.validacion }}</h4>
@@ -95,9 +95,9 @@ function goToFormReferente() {
 }
 
 form {
-    width: 100%;
+    width: 45%;
     margin: 40px auto;
-    padding: 20px;
+    padding: 40px;
     background-color: #fff;
     border: 1px solid #ddd;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -114,19 +114,22 @@ textarea {
     width: 100%;
     padding: 10px;
     margin-bottom: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid #3e3b3b;
 }
 
 input[type="submit"] {
-        background-color: #4CAF50;
-        color: #fff;
-        padding: 10px 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-    }
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+}
 
-    input[type="submit"]:hover {
-        background-color: #3e8e41;
-    }
+input[type="submit"]:hover {
+    background-color: #f8e68f;
+    color: black;
+    font-weight: bold;
+}
 </style>

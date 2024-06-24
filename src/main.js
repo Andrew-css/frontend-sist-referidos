@@ -5,7 +5,7 @@ import axios from "axios";
 import App from "./App.vue";
 
 
-axios.defaults.baseURL = 'http://localhost:3005/api/'
+axios.defaults.baseURL = 'https://backend-sistema-referidos.onrender.com/api/'
 
 const pinia = createPinia();
 
