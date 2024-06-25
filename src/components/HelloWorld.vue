@@ -20,6 +20,7 @@ function goToReseñas() {
     <div class="containerr">
       <a class="btn" @click="goToFormulario()">Responder formulario</a>
       <a class="btn" @click="goToReseñas()">Ver reseñas</a>
+
     </div>
   </div>
 </template>
@@ -28,7 +29,6 @@ function goToReseñas() {
 .main {
   margin: 0;
   height: 100vh;
-  width: 100vw;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -38,9 +38,8 @@ function goToReseñas() {
 .containerr {
   display: flex;
   justify-content: space-between;
-  gap: 50px;
   width: 20%;
-
+  gap: 50px;
 }
 
 .btn {

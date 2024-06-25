@@ -97,6 +97,8 @@ function home() {
                       referente.telefono }}</p>
                     <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Nombre referido:</span> {{
                       referente.idReferido.nombre }}</p>
+                      <p class="card-text"><span class="fw-bold" style="font-weight: bold;">Cedula referido:</span> {{
+                      referente.idReferido.cedula }}</p>
                   </div>
                 </div>
               </div>

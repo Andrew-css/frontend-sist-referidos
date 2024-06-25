@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
@@ -7,26 +7,34 @@ import { useRouter } from 'vue-router';
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
 const router = useRouter();
-
 const nombre = ref("");
 const cedula = ref("");
 const correo = ref("");
 const telefono = ref("");
-const idReferid = ref(useReferidos.nuevoReferido)
+const idReferid = ref(useReferidos.nuevoReferido);
+const referenteSeleccionado = ref(null);
+const referente = ref("");
+const referidos = ref([]);
+const idReferente = ref("");
 
-
-
-async function getInfo() {
+async function getInfoReferentes() {
     try {
-
-        const response = await useReferentes.getAll()
-        console.log("hola soy referidos", response);
+        const response = await useReferentes.getAll();
+        console.log("hola soy referentes", response);
     } catch (error) {
         console.log(error);
     }
 };
 
-getInfo();
+async function getInfoReferidos() {
+    try {
+        const response = await useReferidos.getAll();
+        referidos.value = response;
+        console.log("hola soy referidos", response);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 const agregarNuevoReferente = async () => {
     const data = {
@@ -34,7 +42,7 @@ const agregarNuevoReferente = async () => {
         cedula: cedula.value,
         correo: correo.value,
         telefono: telefono.value,
-        idReferido: idReferid.value,
+        idReferido: idReferente.value,
     };
 
     try {
@@ -44,21 +52,39 @@ const agregarNuevoReferente = async () => {
             goToMsg();
             console.log("Reseña añadida")
         } else if (useReferentes.estatus === 400) {
-            return
+            return;
         }
-
     } catch (error) {
-        console.log('Error al agregar  referido:', error);
+        console.log('Error al agregar referido:', error);
     }
-}
+};
 
+async function getInfoId() {
+    try {
+        const response = await useReferidos.getAll(idReferente.value);
+        console.log("hola soy referidoID", response);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+watch(referente, (newValue) => {
+    idReferente.value = newValue;
+    console.log("Hola soy referido selec", newValue);
+    console.log("idreferente", idReferente.value);
+    getInfoId();
+});
 
 
 function goToMsg() {
-    router.push("/msg")
+    router.push("/msg");
 }
 
-
+onMounted(() => {
+    getInfoReferidos();
+    getInfoReferentes();
+    
+});
 
 </script>
 
@@ -66,24 +92,18 @@ function goToMsg() {
     <div class="main">
         <div class="container">
             <form @submit.prevent="agregarNuevoReferente">
-                <h2 class="text-center">Formulario de datos - Referente</h2>
-                <label class="fw-bold mt-4" for="nombre">Digite el nombre del referente</label>
-                <input type="text" id="nombre" name="nombre" v-model="nombre" required><br><br>
+                <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro hotel</p>
+                <div class="input-group mb-3">
+                    <select v-model="referente" class="form-select" id="inputGroupSelect03" aria-label="Example select with button addon" label="Seleccione ruta">
+                        <option value="" disabled selected>Escoge tu referente...</option>
+                        <option v-for="referido in referidos" :key="referido._id" :value="referido._id">{{ referido.nombre }} / {{ referido.cedula }}</option>
+                    </select>
+                </div>
 
-
-                <label class="fw-bold" for="cedula">Digite la cédula del referente</label>
-                <input type="number" id="cedula" name="cedula" v-model="cedula" required><br><br>
-
-                <label class="fw-bold" for="correo">Digite el correo del referente</label>
-                <input type="email" id="correo" name="correo" v-model="correo" required><br><br>
-
-                <label class="fw-bold" for="telefono">Digite el telefono del referente</label>
-                <input type="number" id="telefono" name="telefono" v-model="telefono" required><br><br>
-
+                <p v-if="referenteSeleccionado">Referente seleccionado: {{ referenteSeleccionado.nombre }} / {{ referenteSeleccionado.cedula }}</p>
 
                 <input type="submit" value="Enviar">
             </form>
-
         </div>
     </div>
 </template>
@@ -91,7 +111,7 @@ function goToMsg() {
 <style scoped>
 .main {
     margin: 0;
-    height: 100%;
+    height: 100vh;
     width: 100%;
     display: flex;
     justify-content: center;
