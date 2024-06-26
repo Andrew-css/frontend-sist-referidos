@@ -20,6 +20,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
     }
   };
 
@@ -32,6 +33,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
     }
   };
 
@@ -46,6 +48,7 @@ export const useStoreReferido = defineStore(modelo, () => {
     } catch (error) {
       console.log(error);
       validacion.value = error.response.data.error;
+      estatus.value = error.response.status;
     }
   };
 
@@ -57,6 +60,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
     }
   };
 
@@ -67,6 +71,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
     }
   };
 
@@ -77,6 +82,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
     }
   };
 

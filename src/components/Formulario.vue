@@ -11,6 +11,7 @@ const correo = ref("");
 const telefono = ref("");
 const opinion = ref("");
 const useReferidos = useStoreReferido();
+const validacion = ref("")
 
 
 async function getInfo() {
@@ -38,9 +39,10 @@ const agregarNuevoReferido = async () => {
         const response = await useReferidos.agregar(data);
 
         if (useReferidos.estatus === 200) {
-            goToFormReferente()
+            goToFormReferente();
         } else if (useReferidos.estatus === 400) {
-            return
+            validacion.value = useReferidos.validacion;
+            return;
         }
 
     } catch (error) {
@@ -59,7 +61,7 @@ function goToFormReferente() {
         <div class="container">
             <form @submit.prevent="agregarNuevoReferido">
                 <h2 class="text-center">Formulario de datos</h2>
-                <h4 class="text-danger text-center fw-bold">{{ useReferidos.validacion }}</h4>
+                <h4 class="text-danger text-center fw-bold">{{ validacion }}</h4>
                 <label class="fw-bold mt-4" for="nombre">Digite su nombre</label>
                 <input type="text" id="nombre" name="nombre" v-model="nombre" required><br><br>
 
@@ -118,7 +120,7 @@ textarea {
 }
 
 input[type="submit"] {
-    background-color: #4CAF50;
+    background-color: #000000;
     color: #fff;
     padding: 10px 20px;
     border: none;

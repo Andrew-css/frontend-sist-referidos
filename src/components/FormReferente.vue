@@ -12,10 +12,12 @@ const cedula = ref("");
 const correo = ref("");
 const telefono = ref("");
 const idReferid = ref(useReferidos.nuevoReferido);
-const referenteSeleccionado = ref(null);
 const referente = ref("");
 const referidos = ref([]);
-const idReferente = ref("");
+const mensajeValidacion = ref("")
+const isChecked = ref(false);
+
+
 
 async function getInfoReferentes() {
     try {
@@ -42,7 +44,7 @@ const agregarNuevoReferente = async () => {
         cedula: cedula.value,
         correo: correo.value,
         telefono: telefono.value,
-        idReferido: idReferente.value,
+        idReferido: idReferid.value,
     };
 
     try {
@@ -52,6 +54,7 @@ const agregarNuevoReferente = async () => {
             goToMsg();
             console.log("Reseña añadida")
         } else if (useReferentes.estatus === 400) {
+            mensajeValidacion.value = "Por favor escoja una opción"
             return;
         }
     } catch (error) {
@@ -59,20 +62,22 @@ const agregarNuevoReferente = async () => {
     }
 };
 
-async function getInfoId() {
+`async function getInfoId() {
     try {
-        const response = await useReferidos.getAll(idReferente.value);
+        const response = await useReferidos.getPorId(idReferente.value);
         console.log("hola soy referidoID", response);
     } catch (error) {
         console.log(error);
     }
-};
+};`
 
 watch(referente, (newValue) => {
-    idReferente.value = newValue;
     console.log("Hola soy referido selec", newValue);
-    console.log("idreferente", idReferente.value);
-    getInfoId();
+    nombre.value = newValue.nombre;
+    cedula.value = newValue.cedula;
+    correo.value = newValue.correo;
+    telefono.value = newValue.telefono;
+    console.log("soy nombre value", nombre.value, cedula.value, correo.value, telefono.value)
 });
 
 
@@ -83,27 +88,49 @@ function goToMsg() {
 onMounted(() => {
     getInfoReferidos();
     getInfoReferentes();
-    
+
 });
 
 </script>
 
 <template>
     <div class="main">
-        <div class="container">
-            <form @submit.prevent="agregarNuevoReferente">
-                <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro hotel</p>
-                <div class="input-group mb-3">
-                    <select v-model="referente" class="form-select" id="inputGroupSelect03" aria-label="Example select with button addon" label="Seleccione ruta">
-                        <option value="" disabled selected>Escoge tu referente...</option>
-                        <option v-for="referido in referidos" :key="referido._id" :value="referido._id">{{ referido.nombre }} / {{ referido.cedula }}</option>
-                    </select>
-                </div>
+        <div class="container ">
 
-                <p v-if="referenteSeleccionado">Referente seleccionado: {{ referenteSeleccionado.nombre }} / {{ referenteSeleccionado.cedula }}</p>
+            <form @submit.prevent="agregarNuevoReferente" class="w-50">
+                <p class="text-center fw-bold fs-5">Por favor seleccione el método por el que encontró nuestro servicio</p>
+                <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
+                <div class="container text-center mb-3">
+                    <div class="row justify-content-center" style="width: 100%;">
+                        <div class="form-check form-switch col-6">
+                            <input class="form-check-input" type="checkbox" role="switch" id="referidoPorAlguien"
+                                v-model="isChecked" style="margin-left: 30%;">
+                            <label class="form-check-label" for="referidoPorAlguien">Referido por alguien</label>
+                        </div>
+                        <div class="form-check form-switch col-6">
+                            <input class="form-check-input" type="checkbox" role="switch" id="redesSociales"
+                                style="margin-left: 30%;">
+                            <label class="form-check-label" for="redesSociales">Redes sociales</label>
+                        </div>
+
+                    </div>
+                    <div class="input-group mt-4" v-if="isChecked">
+                        <select v-model="referente" class="form-select" id="inputGroupSelect03"
+                            aria-label="Example select with button addon">
+                            <option value="" disabled selected>Escoge tu referente...</option>
+                            <option v-for="referido in referidos" :key="referido._id" :value="referido"
+                                :disabled="referido._id === idReferid">{{ referido.nombre }}</option>
+                        </select>
+                    </div>
+                </div>
 
                 <input type="submit" value="Enviar">
             </form>
+        </div>
+
+        <div class="modal-dialog modal-dialog-centered" id="modalCentered" data-bs-keyboard="false" tabindex="-1"
+            aria-labelledby="modalCenteredLabel" aria-hidden="true">
+            ...
         </div>
     </div>
 </template>
@@ -143,7 +170,7 @@ textarea {
 }
 
 input[type="submit"] {
-    background-color: #4CAF50;
+    background-color: #000000;
     color: #fff;
     padding: 10px 20px;
     border: none;
@@ -156,5 +183,9 @@ input[type="submit"]:hover {
     background-color: #f8e68f;
     color: black;
     font-weight: bold;
+}
+
+.form-select {
+    border: 1px solid black;
 }
 </style>
