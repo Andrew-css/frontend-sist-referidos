@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted, computed } from 'vue'
 import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
@@ -14,10 +14,11 @@ const telefono = ref("");
 const idReferid = ref(useReferidos.nuevoReferido);
 const referente = ref("");
 const referidos = ref([]);
-const mensajeValidacion = ref("")
-const isChecked = ref(false);
-
-
+const mensajeValidacion = ref("");
+const isCheckedReferido = ref(false);
+const isCheckedRedesSociales = ref(false);
+const red = ref("Redes sociales");
+const idRed = ref("");
 
 async function getInfoReferentes() {
     try {
@@ -38,38 +39,73 @@ async function getInfoReferidos() {
     }
 };
 
-const agregarNuevoReferente = async () => {
-    const data = {
-        nombre: nombre.value,
-        cedula: cedula.value,
-        correo: correo.value,
-        telefono: telefono.value,
-        idReferido: idReferid.value,
-    };
-
+async function getInfoNombre() {
     try {
-        const response = await useReferentes.agregar(data);
-
-        if (useReferentes.estatus === 200) {
-            goToMsg();
-            console.log("Reseña añadida")
-        } else if (useReferentes.estatus === 400) {
-            mensajeValidacion.value = "Por favor escoja una opción"
-            return;
-        }
-    } catch (error) {
-        console.log('Error al agregar referido:', error);
-    }
-};
-
-`async function getInfoId() {
-    try {
-        const response = await useReferidos.getPorId(idReferente.value);
-        console.log("hola soy referidoID", response);
+        const response = await useReferidos.getPorNombre(red.value);
+        console.log("hola soy red", response[0]._id);
+        idRed.value = response[0]._id;
+        nombre.value = response[0].nombre;
+        cedula.value = response[0].cedula;
+        correo.value = response[0].correo;
+        telefono.value = response[0].telefono;
+        console.log(cedula.value)
     } catch (error) {
         console.log(error);
     }
-};`
+};
+
+const agregarNuevoReferente = async () => {
+    if (isCheckedRedesSociales.value === true) {
+        await getInfoNombre();
+        const data = {
+            nombre: nombre.value,
+            cedula: cedula.value,
+            correo: correo.value,
+            telefono: telefono.value,
+            idReferido: idReferid.value,
+        };
+
+        try {
+            const response = await useReferentes.agregar(data);
+
+            if (useReferentes.estatus === 200) {
+                goToMsg();
+                console.log("Reseña añadida")
+            } else if (useReferentes.estatus === 400) {
+                mensajeValidacion.value = "Por favor escoja una opción"
+                return;
+            }
+        } catch (error) {
+            console.log('Error al agregar referido:', error);
+        }
+
+
+    } else {
+        const data = {
+            nombre: nombre.value,
+            cedula: cedula.value,
+            correo: correo.value,
+            telefono: telefono.value,
+            idReferido: idReferid.value,
+        };
+
+        try {
+            const response = await useReferentes.agregar(data);
+
+            if (useReferentes.estatus === 200) {
+                goToMsg();
+                console.log("Reseña añadida")
+            } else if (useReferentes.estatus === 400) {
+                mensajeValidacion.value = "Por favor escoja una opción"
+                return;
+            }
+        } catch (error) {
+            console.log('Error al agregar referido:', error);
+        }
+    }
+
+
+};
 
 watch(referente, (newValue) => {
     console.log("Hola soy referido selec", newValue);
@@ -80,6 +116,9 @@ watch(referente, (newValue) => {
     console.log("soy nombre value", nombre.value, cedula.value, correo.value, telefono.value)
 });
 
+const isChecked = computed(() => isCheckedReferido.value);
+
+
 
 function goToMsg() {
     router.push("/msg");
@@ -89,6 +128,7 @@ onMounted(() => {
     getInfoReferidos();
     getInfoReferentes();
 
+
 });
 
 </script>
@@ -96,7 +136,6 @@ onMounted(() => {
 <template>
     <div class="main">
         <div class="container ">
-
             <form @submit.prevent="agregarNuevoReferente" class="w-50">
                 <p class="text-center fw-bold fs-5">Por favor seleccione el método por el que encontró nuestro servicio</p>
                 <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
@@ -104,15 +143,14 @@ onMounted(() => {
                     <div class="row justify-content-center" style="width: 100%;">
                         <div class="form-check form-switch col-6">
                             <input class="form-check-input" type="checkbox" role="switch" id="referidoPorAlguien"
-                                v-model="isChecked" style="margin-left: 30%;">
-                            <label class="form-check-label" for="referidoPorAlguien">Referido por alguien</label>
+                                v-model="isCheckedReferido" :disabled="isCheckedRedesSociales" style="margin-left: 20%;">
+                            <label class="form-check-label" for="referidoPorAlguien">Referido por otra persona</label>
                         </div>
                         <div class="form-check form-switch col-6">
                             <input class="form-check-input" type="checkbox" role="switch" id="redesSociales"
-                                style="margin-left: 30%;">
+                                v-model="isCheckedRedesSociales" :disabled="isCheckedReferido" style="margin-left: 30%;">
                             <label class="form-check-label" for="redesSociales">Redes sociales</label>
                         </div>
-
                     </div>
                     <div class="input-group mt-4" v-if="isChecked">
                         <select v-model="referente" class="form-select" id="inputGroupSelect03"
@@ -188,4 +226,5 @@ input[type="submit"]:hover {
 .form-select {
     border: 1px solid black;
 }
+
 </style>

@@ -7,6 +7,7 @@ const estatus = ref("");
 const validacion = ref("");
 const nuevoReferido = ref("");
 const referidoID = ref("");
+const referidoNombre = ref("");
 
 export const useStoreReferido = defineStore(modelo, () => {
   const referidos = ref([]);
@@ -29,6 +30,19 @@ export const useStoreReferido = defineStore(modelo, () => {
       const response = await axios.get(`${modelo}/buscarId/${id}`);
       console.log(response);
       referidoID.value = response;
+      estatus.value = response.status;
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      estatus.value = error.response.status;
+    }
+  };
+
+  const getPorNombre = async (nombre) => {
+    try {
+      const response = await axios.get(`${modelo}/buscarNombre/${nombre}`);
+      console.log(response);
+      referidoNombre.value = response.data;
       estatus.value = response.status;
       return response.data;
     } catch (error) {
@@ -63,6 +77,7 @@ export const useStoreReferido = defineStore(modelo, () => {
       estatus.value = error.response.status;
     }
   };
+  
 
   const activar = async (id) => {
     try {
@@ -89,6 +104,7 @@ export const useStoreReferido = defineStore(modelo, () => {
   return {
     getAll,
     getPorId,
+    getPorNombre,
     agregar,
     editar,
     activar,
