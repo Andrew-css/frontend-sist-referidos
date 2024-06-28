@@ -7,6 +7,7 @@ const estatus = ref("");
 const validacion = ref("");
 const nuevoReferente = ref("");
 const referentesCedulas = ref("");
+const referidoCedula = ref("")
 
 
 export const useStoreReferente = defineStore(modelo, () => {
@@ -34,6 +35,21 @@ export const useStoreReferente = defineStore(modelo, () => {
       return response.data;
     } catch (error) {
       console.log(error);
+      estatus.value = error.response.status;
+    }
+  };
+
+  const getPorCedulaReferido = async (cedula) => {
+    try {
+      const response = await axios.get(`${modelo}/buscarCedulaRef/${cedula}`);
+      console.log(response);
+      referidoCedula.value = response.data;
+      console.log("hola ref por cedula rif", referidoCedula)
+      estatus.value = response.status;
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      validacion.value = error.response.data.error
       estatus.value = error.response.status;
     }
   };
@@ -87,5 +103,5 @@ export const useStoreReferente = defineStore(modelo, () => {
     }
   };
 
-  return { getAll,getPorCedula, agregar, editar, activar, inactivar, referentes, estatus, validacion, nuevoReferente, referentesCedulas };
+  return { getAll,getPorCedula,getPorCedulaReferido, agregar, editar, activar, inactivar, referentes, estatus, validacion, nuevoReferente, referentesCedulas, referidoCedula };
 });

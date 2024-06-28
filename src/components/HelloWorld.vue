@@ -18,8 +18,8 @@ function goToReseñas() {
 <template>
   <div class="main">
     <div class="containerr">
-      <a class="btn" @click="goToFormulario()">Responder formulario</a>
-      <a class="btn" @click="goToReseñas()">Ver reseñas</a>
+      <a class="btn shadow__btn" id="btn" @click="goToFormulario()">Responder formulario</a>
+      <a class="btn shadow__btn" id="btn" @click="goToReseñas()">Ver reseñas</a>
 
     </div>
   </div>
@@ -42,18 +42,29 @@ function goToReseñas() {
   gap: 50px;
 }
 
-.btn {
+.shadow__btn {
   padding: 10px 20px;
   border: none;
-  border-radius: 5px;
-  background-color: #404841ac;
+  font-size: 17px;
   color: #fff;
-  cursor: pointer;
-  font-weight: bold;
+  border-radius: 7px;
+  letter-spacing: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: 0.5s;
+  transition-property: box-shadow;
 }
 
-.btn:hover {
-  background-color: #2d1a32;
-  color: #fff;
+.shadow__btn {
+  background: rgb(0,140,255);
+  box-shadow: 0 0 25px rgb(0,140,255);
 }
+
+.shadow__btn:hover {
+  box-shadow: 0 0 5px rgb(0,140,255),
+              0 0 25px rgb(0,140,255),
+              0 0 50px rgb(0,140,255),
+              0 0 100px rgb(0,140,255);
+}
+
 </style>

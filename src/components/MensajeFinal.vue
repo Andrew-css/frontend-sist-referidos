@@ -17,6 +17,7 @@ function home() {
                     <h4 class="alert-heading">¡Gracias por responder!</h4>
                     <p>Agradecemos el tiempo que te tomaste para responder nuestro formulario. Tu opinión es muy valiosa
                         para nosotros.</p>
+                        
                     <hr>
                     <p class="mb-0">Estamos emocionados de haber podido recopilar tus comentarios y los utilizaremos
                         para mejorar nuestros servicios.</p>
@@ -45,6 +46,5 @@ function home() {
 
 .btn-danger {
     width: 200px;
-    /* Establece un ancho específico para el botón */
 }
 </style>

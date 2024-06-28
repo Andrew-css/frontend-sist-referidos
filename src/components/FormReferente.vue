@@ -15,10 +15,6 @@ const idReferid = ref(useReferidos.nuevoReferido);
 const referente = ref("");
 const referidos = ref([]);
 const mensajeValidacion = ref("");
-const isCheckedReferido = ref(false);
-const isCheckedRedesSociales = ref(false);
-const red = ref("Redes sociales");
-const idRed = ref("");
 
 async function getInfoReferentes() {
     try {
@@ -39,72 +35,29 @@ async function getInfoReferidos() {
     }
 };
 
-async function getInfoNombre() {
-    try {
-        const response = await useReferidos.getPorNombre(red.value);
-        console.log("hola soy red", response[0]._id);
-        idRed.value = response[0]._id;
-        nombre.value = response[0].nombre;
-        cedula.value = response[0].cedula;
-        correo.value = response[0].correo;
-        telefono.value = response[0].telefono;
-        console.log(cedula.value)
-    } catch (error) {
-        console.log(error);
-    }
-};
 
 const agregarNuevoReferente = async () => {
-    if (isCheckedRedesSociales.value === true) {
-        await getInfoNombre();
-        const data = {
-            nombre: nombre.value,
-            cedula: cedula.value,
-            correo: correo.value,
-            telefono: telefono.value,
-            idReferido: idReferid.value,
-        };
+    const data = {
+        nombre: nombre.value,
+        cedula: cedula.value,
+        correo: correo.value,
+        telefono: telefono.value,
+        idReferido: idReferid.value,
+    };
 
-        try {
-            const response = await useReferentes.agregar(data);
+    try {
+        const response = await useReferentes.agregar(data);
 
-            if (useReferentes.estatus === 200) {
-                goToMsg();
-                console.log("Reseña añadida")
-            } else if (useReferentes.estatus === 400) {
-                mensajeValidacion.value = "Por favor escoja una opción"
-                return;
-            }
-        } catch (error) {
-            console.log('Error al agregar referido:', error);
+        if (useReferentes.estatus === 200) {
+            goToMsg();
+            console.log("Reseña añadida")
+        } else if (useReferentes.estatus === 400) {
+            mensajeValidacion.value = "Por favor escoja un referente"
+            return;
         }
-
-
-    } else {
-        const data = {
-            nombre: nombre.value,
-            cedula: cedula.value,
-            correo: correo.value,
-            telefono: telefono.value,
-            idReferido: idReferid.value,
-        };
-
-        try {
-            const response = await useReferentes.agregar(data);
-
-            if (useReferentes.estatus === 200) {
-                goToMsg();
-                console.log("Reseña añadida")
-            } else if (useReferentes.estatus === 400) {
-                mensajeValidacion.value = "Por favor escoja una opción"
-                return;
-            }
-        } catch (error) {
-            console.log('Error al agregar referido:', error);
-        }
+    } catch (error) {
+        console.log('Error al agregar referido:', error);
     }
-
-
 };
 
 watch(referente, (newValue) => {
@@ -116,7 +69,7 @@ watch(referente, (newValue) => {
     console.log("soy nombre value", nombre.value, cedula.value, correo.value, telefono.value)
 });
 
-const isChecked = computed(() => isCheckedReferido.value);
+
 
 
 
@@ -127,33 +80,19 @@ function goToMsg() {
 onMounted(() => {
     getInfoReferidos();
     getInfoReferentes();
-
-
 });
 
 </script>
 
 <template>
     <div class="main">
-        <div class="container ">
+        <div class="container " >
             <form @submit.prevent="agregarNuevoReferente" class="w-50">
-                <p class="text-center fw-bold fs-5">Por favor seleccione el método por el que encontró nuestro servicio</p>
+                <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro servicio</p>
                 <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
                 <div class="container text-center mb-3">
-                    <div class="row justify-content-center" style="width: 100%;">
-                        <div class="form-check form-switch col-6">
-                            <input class="form-check-input" type="checkbox" role="switch" id="referidoPorAlguien"
-                                v-model="isCheckedReferido" :disabled="isCheckedRedesSociales" style="margin-left: 20%;">
-                            <label class="form-check-label" for="referidoPorAlguien">Referido por otra persona</label>
-                        </div>
-                        <div class="form-check form-switch col-6">
-                            <input class="form-check-input" type="checkbox" role="switch" id="redesSociales"
-                                v-model="isCheckedRedesSociales" :disabled="isCheckedReferido" style="margin-left: 30%;">
-                            <label class="form-check-label" for="redesSociales">Redes sociales</label>
-                        </div>
-                    </div>
-                    <div class="input-group mt-4" v-if="isChecked">
-                        <select v-model="referente" class="form-select" id="inputGroupSelect03"
+                    <div class="input-group mt-4">
+                        <select v-model="referente" class="form-select input" id="inputGroupSelect03"
                             aria-label="Example select with button addon">
                             <option value="" disabled selected>Escoge tu referente...</option>
                             <option v-for="referido in referidos" :key="referido._id" :value="referido"
@@ -162,14 +101,11 @@ onMounted(() => {
                     </div>
                 </div>
 
-                <input type="submit" value="Enviar">
+                <input type="submit" value="Enviar" class="boton-elegante" style="width: 100%;">
             </form>
         </div>
 
-        <div class="modal-dialog modal-dialog-centered" id="modalCentered" data-bs-keyboard="false" tabindex="-1"
-            aria-labelledby="modalCenteredLabel" aria-hidden="true">
-            ...
-        </div>
+        
     </div>
 </template>
 
@@ -194,37 +130,73 @@ form {
     border-radius: 5px;
 }
 
-label {
-    display: block;
-    margin-bottom: 10px;
-}
-
-input,
-textarea {
+.input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 20px;
-    border: 1px solid #3e3b3b;
+    height: 44px;
+    background-color: #05060f0a;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    border: 2px solid transparent;
+    font-size: 1rem;
+    transition: border-color .3s cubic-bezier(.25, .01, .25, 1) 0s, color .3s cubic-bezier(.25, .01, .25, 1) 0s, background .2s cubic-bezier(.25, .01, .25, 1) 0s;
 }
 
-input[type="submit"] {
-    background-color: #000000;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
+.label {
+    display: block;
+    margin-bottom: .3rem;
+    font-size: .9rem;
+    font-weight: bold;
+    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+}
+
+.input:hover,
+.input:focus,
+.input-group:hover .input {
+    outline: none;
+    border-color: #05060f;
+}
+
+.input-group:hover .label,
+.input:focus {
+    color: #05060fc2;
+}
+
+.boton-elegante {
+    padding: 5px 30px;
+    border: 2px solid #2c2c2c;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 1.2rem;
     cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.4s ease;
+    outline: none;
+    position: relative;
+    overflow: hidden;
     font-weight: bold;
 }
 
-input[type="submit"]:hover {
-    background-color: #f8e68f;
+.boton-elegante::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle,
+            rgba(255, 255, 255, 0.25) 0%,
+            rgba(255, 255, 255, 0) 70%);
+    transform: scale(0);
+    transition: transform 0.5s ease;
+}
+
+.boton-elegante:hover::after {
+    transform: scale(4);
+}
+
+.boton-elegante:hover {
+    border-color: #666666;
+    background: rgb(128, 251, 128);
     color: black;
-    font-weight: bold;
 }
-
-.form-select {
-    border: 1px solid black;
-}
-
 </style>
