@@ -1,18 +1,37 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import HelloWorld from "../components/HelloWorld.vue";
 import Formulario from "../components/Formulario.vue";
-import FormularioReferente from "../components/FormReferente.vue"
-import Resenas from "../components/resena.vue"
-import MensajeFinal from "../components/MensajeFinal.vue"
+import FormularioReferente from "../components/FormReferente.vue";
+import Login from "../components/Login.vue";
+import Resenas from "../components/resena.vue";
+import MensajeFinal from "../components/MensajeFinal.vue";
+import { useStoreUsuarios } from "../stores/usuario.js";
 
+const checkAuth = () => {
+  const useUsuario = useStoreUsuarios();
 
+  const token = useUsuario.token;
+
+  if (!token) return false;
+  return true;
+};
+
+const auth = (to, from, next) => {
+  if (checkAuth()) {
+    next(); // Si hay token, permitir acceso a la ruta 
+  } else {
+    console.log("Por favor inicie sesion")
+    next({ path: "/login" }); // Si no hay token, redirigir
+  }
+};
 
 const routes = [
   { path: "/", component: HelloWorld },
   { path: "/formulario", component: Formulario },
   { path: "/formref", component: FormularioReferente },
-  { path: "/resena", component: Resenas },
+  { path: "/resena", beforeEnter: auth, component: Resenas },
   { path: "/msg", component: MensajeFinal },
+  { path: "/login", component: Login },
 ];
 
 export const router = createRouter({

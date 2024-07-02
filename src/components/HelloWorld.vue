@@ -8,8 +8,8 @@ function goToFormulario() {
   router.push(`/formulario`);
 }
 
-function goToReseñas() {
-  router.push(`/resena`);
+function goToLogin() {
+  router.push(`/login`);
 }
 
 
@@ -19,7 +19,7 @@ function goToReseñas() {
   <div class="main">
     <div class="containerr">
       <a class="btn shadow__btn" id="btn" @click="goToFormulario()">Responder formulario</a>
-      <a class="btn shadow__btn" id="btn" @click="goToReseñas()">Ver reseñas</a>
+      <a class="btn shadow__btn" id="btn" @click="goToLogin()">Ver reseñas</a>
 
     </div>
   </div>
@@ -29,6 +29,7 @@ function goToReseñas() {
 .main {
   margin: 0;
   height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -46,7 +47,7 @@ function goToReseñas() {
   padding: 10px 20px;
   border: none;
   font-size: 17px;
-  color: #fff;
+  color: #ffffff;
   border-radius: 7px;
   letter-spacing: 4px;
   font-weight: 700;
@@ -56,15 +57,10 @@ function goToReseñas() {
 }
 
 .shadow__btn {
-  background: rgb(0,140,255);
-  box-shadow: 0 0 25px rgb(0,140,255);
+  background: rgb(0, 0, 0);
+  box-shadow: 0 0 25px rgb(255, 255, 255);
 }
 
-.shadow__btn:hover {
-  box-shadow: 0 0 5px rgb(0,140,255),
-              0 0 25px rgb(0,140,255),
-              0 0 50px rgb(0,140,255),
-              0 0 100px rgb(0,140,255);
-}
+
 
 </style>

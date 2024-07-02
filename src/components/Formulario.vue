@@ -13,6 +13,8 @@ const opinion = ref("");
 const metodo = ref("");
 const useReferidos = useStoreReferido();
 const validacion = ref("");
+const showModal = ref(false);
+const selectedMethod = ref("");
 const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Otro" }])
 
 
@@ -31,55 +33,35 @@ const agregarNuevoReferido = async () => {
     if (!nombre.value || !cedula.value || !correo.value || !telefono.value || !opinion.value || !metodo.value) {
         validacion.value = "Por favor, complete todos los campos";
         setTimeout(() => {
-        validacion.value = "";
-        return;
-      }, 5000);
+            validacion.value = "";
+            return;
+        }, 5000);
         return;
     }
 
     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(correo.value)) {
         validacion.value = "Por favor, ingrese un correo electrónico válido";
         setTimeout(() => {
-        validacion.value = "";
-        return;
-      }, 5000);
+            validacion.value = "";
+            return;
+        }, 5000);
         return;
     }
 
     if (metodo.value === "") {
         validacion.value = "Por favor, seleccione una opción en el método";
         setTimeout(() => {
-        validacion.value = "";
-        return;
-      }, 5000);
+            validacion.value = "";
+            return;
+        }, 5000);
         return;
     }
-    
+
     if (metodo.value === "Redes sociales" || metodo.value === "Otro") {
-
-        const data = {
-            nombre: nombre.value,
-            cedula: cedula.value,
-            correo: correo.value,
-            telefono: telefono.value,
-            opinion: opinion.value,
-            metodo: metodo.value,
-        };
-
-        try {
-            const response = await useReferidos.agregar(data);
-
-            if (useReferidos.estatus === 200) {
-                goToMensajeFinal();
-            } else if (useReferidos.estatus === 400) {
-                validacion.value = useReferidos.validacion;
-                return;
-            }
-
-        } catch (error) {
-            console.log('Error al agregar  referido:', error);
-        }
+        showModal.value = true;
+        selectedMethod.value = metodo.value;
     } else {
+        // Enviar formulario directamente si se seleccionó "Referido"
         const data = {
             nombre: nombre.value,
             cedula: cedula.value,
@@ -103,7 +85,38 @@ const agregarNuevoReferido = async () => {
             console.log('Error al agregar  referido:', error);
         }
     }
+}
 
+const confirmMethod = async () => {
+    showModal.value = false;
+    // Enviar formulario con los datos seleccionados
+    const data = {
+        nombre: nombre.value,
+        cedula: cedula.value,
+        correo: correo.value,
+        telefono: telefono.value,
+        opinion: opinion.value,
+        metodo: selectedMethod.value,
+    };
+
+    try {
+        const response = await useReferidos.agregar(data);
+
+        if (useReferidos.estatus === 200) {
+            goToMensajeFinal();
+        } else if (useReferidos.estatus === 400) {
+            validacion.value = useReferidos.validacion;
+            return;
+        }
+
+    } catch (error) {
+        console.log('Error al agregar  referido:', error);
+    }
+}
+
+function cancelMethod() {
+    showModal.value = false;
+    metodo.value = "";
 }
 
 function goToFormReferente() {
@@ -125,32 +138,42 @@ function goToMensajeFinal() {
                     Formulario de datos</h2>
                 <h4 class="text-danger text-center fw-bold">{{ validacion }}</h4>
                 <label class="fw-bold mt-4 label" for="nombre">Digite su nombre</label>
-                <input type="text" id="nombre" name="nombre" v-model="nombre" class="input" ><br>
+                <input type="text" id="nombre" name="nombre" v-model="nombre" class="input"><br>
 
                 <label class="fw-bold label" for="cedula">Digite su cédula o número de documento</label>
-                <input type="number" id="cedula" name="cedula" v-model="cedula"  class="input"><br>
+                <input type="number" id="cedula" name="cedula" v-model="cedula" class="input"><br>
 
                 <label class="fw-bold label" for="correo">Digite su correo electrónico</label>
-                <input type="email" id="correo" name="correo" v-model="correo"  class="input"><br>
+                <input type="email" id="correo" name="correo" v-model="correo" class="input"><br>
 
                 <label class="fw-bold label" for="telefono">Digite su teléfono</label>
-                <input type="number" id="telefono" name="telefono" v-model="telefono"  class="input"><br>
+                <input type="number" id="telefono" name="telefono" v-model="telefono" class="input"><br>
 
                 <label class="fw-bold label" for="opinion">Por favor seleccione el método por el que encontró nuestro
                     servicio</label>
                 <select v-model="metodo" class="form-select mb-4 input" id="inputGroupSelect03"
-                    aria-label="Example select with button addon" >
+                    aria-label="Example select with button addon">
                     <option value="" disabled selected>Escoge una opción...</option>
                     <option v-for="opcion in opciones" :key="opcion.nombre" :value="opcion.nombre">{{ opcion.nombre }}
                     </option>
                 </select>
 
                 <label class="fw-bold label" for="opinion">Digite su opinión respecto al servicio ofrecido</label>
-                <textarea id="opinion" name="opinion" v-model="opinion" class="input" style="height: 70px;"
-                    ></textarea><br><br>
+                <textarea id="opinion" name="opinion" v-model="opinion" class="input"
+                    style="height: 70px;"></textarea><br><br>
 
                 <input type="submit" value="Enviar" class="boton-elegante">
             </form>
+
+           
+            <div v-if="showModal" class="modal">
+                <div class="modal-content">
+                    <h2>Confirmar método</h2>
+                    <p>Estás seguro que deseas seleccionar {{ selectedMethod }}?</p>
+                    <button @click="confirmMethod" id="buttony">Sí</button>
+                    <button @click="cancelMethod" id="buttonn">No</button>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -199,7 +222,7 @@ textarea {
 .label {
     display: block;
     margin-bottom: .3rem;
-    font-size: .9rem;
+    font-size: 110%;
     font-weight: bold;
     transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
 }
@@ -254,4 +277,59 @@ textarea {
     background: rgb(128, 251, 128);
     color: black;
 }
+
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    width: 300px;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+}
+
+.modal-content button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.modal-content button:hover {
+    background-color: #ccc;
+}
+
+#buttony:hover{
+background-color: green;
+color: white;
+font-weight: bold;
+}
+
+#buttonn:hover{
+background-color: red;
+color: black;
+font-weight: bold;
+}
+
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
 </style>

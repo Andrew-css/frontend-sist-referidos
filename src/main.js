@@ -3,13 +3,16 @@ import { router } from "./routes/routes.js";
 import { createPinia } from "pinia";
 import axios from "axios";
 import App from "./App.vue";
-import FloatingVue from 'floating-vue'
-import 'floating-vue/dist/style.css'
+import FloatingVue from 'floating-vue';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+import 'floating-vue/dist/style.css';
 
 
 axios.defaults.baseURL = 'http://localhost:3005/api/'
 
 const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
 
 const myApp = createApp(App);
 
