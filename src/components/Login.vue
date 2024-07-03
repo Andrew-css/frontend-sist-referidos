@@ -10,10 +10,16 @@ const identificacion = ref("");
 const password = ref("");
 const msgValidacion = ref("");
 const showPassword = ref(false);
+const loadIngresar = ref(false);
+const msgButton = ref("Ingresar");
 
 const Login = async () => {
+    loadIngresar.value = true;
+    msgButton.value = "";
     if (!identificacion.value || !password.value) {
         msgValidacion.value = "Por favor, complete todos los campos";
+        loadIngresar.value = false;
+        msgButton.value = "Ingresar";
         setTimeout(() => {
             msgValidacion.value = "";
             return;
@@ -30,10 +36,14 @@ const Login = async () => {
         const response = await useUsuarios.login(data);
 
         if (useUsuarios.estatus === 200) {
+            loadIngresar.value = false;
+            msgButton.value = "Ingresar";
             goToResena();
             console.log("Login exitoso")
         } else if (useUsuarios.estatus === 400) {
             msgValidacion.value = useUsuarios.validacion
+            loadIngresar.value = false;
+            msgButton.value = "Ingresar";
             setTimeout(() => {
                 msgValidacion.value = "";
                 return;
@@ -41,6 +51,8 @@ const Login = async () => {
             return;
         } else if (useUsuarios.estatus === 401) {
             msgValidacion.value = useUsuarios.validacion
+            loadIngresar.value = false;
+            msgButton.value = "Ingresar";
             setTimeout(() => {
                 msgValidacion.value = "";
                 return;
@@ -84,7 +96,12 @@ function goToResena() {
                     </div>
                 </div>
                 <div class="form-group">
-                    <input value="Ingresar" type="submit">
+                    <button value="Ingresar" type="submit">
+                        <div v-if="loadIngresar">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        {{ msgButton }}
+                    </button>
                 </div>
             </form>
         </div>
@@ -144,7 +161,7 @@ input[type="text"] {
     transition: 0.5s;
 }
 
-input[type="submit"] {
+button[type="submit"] {
     width: 100%;
     background-color: #333;
     color: white;
@@ -155,7 +172,7 @@ input[type="submit"] {
     cursor: pointer;
 }
 
-input[type="submit"]:hover {
+button[type="submit"]:hover {
     background-color: #ccc;
     color: black;
 }

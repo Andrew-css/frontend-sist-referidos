@@ -3,6 +3,7 @@ import { ref, onMounted, computed } from 'vue'
 import { useStoreReferido } from '../stores/referido.js'
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
+import logoHere from "../assets/logo.png";
 
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
@@ -132,18 +133,25 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mt-5 ">
-    <div class="mb-4" style="display: flex; flex-direction: row; justify-content: end; gap: 20px;">
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-        Buscar referidos
-      </button>
-      <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
-        Buscar referente
-      </button>
-      <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
-        <i class="fas fa-right-from-bracket"></i>
-      </button>
+  <div class="container mt-5 " style="width: 100%; height: 100%;">
+    <div class="d-flex align-items-center" id="logoBoton">
+      <div class="col-md-5">
+        <img :src="logoHere" alt="" style="max-width: 100px; max-height: 100px;">
+        <span class="fw-bold fs-4">Nombre Empresa</span>
+      </div>
+      <div class="col-md-7 " id="botones">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
+          Buscar referidos
+        </button>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
+          Buscar referente
+        </button>
+        <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
+          <i class="fas fa-right-from-bracket"></i>
+        </button>
+      </div>
     </div>
+
 
     <div class="row">
       <h1 class="text-center mb-3">Opiniones de nuestros clientes</h1>
@@ -192,59 +200,40 @@ onMounted(() => {
                   </div>
                   <h4 class="text-danger text-center fw-bold">{{ msgNoReferido }}</h4>
                   <div class="row justify-content-center" v-if="mostrarReferidos">
-                    <div class="col-md-11">
-                      <div class="card">
-                        <div class="card-body container" style="height: auto;">
-                          <span class="fw-bold fs-5" style="font-weight: bold;">Referente:</span>
-                          <p class="card-text">
-                            {{
-                              nombreReferente }}</p>
-                          <span class="fw-bold fs-5" style="font-weight: bold;">Cedula:</span>
-                          <p class="card-text">
-                            {{
-                              cedulaReferente }}</p>
-                          <span class="fw-bold fs-5" style="font-weight: bold;">Correo:</span>
-                          <p class="card-text">
-                            {{
-                              correoReferente }}</p>
-                          <span class="fw-bold fs-5" style="font-weight: bold;">Teléfono:</span>
-                          <p class="card-text">
-                            {{
-                              telefonoReferente }}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <h1 class="mb-3">Referente</h1>
+                    <table class="mb-4">
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                      </tr>
+                      <tr>
+                        <td>{{ nombreReferente }}</td>
+                        <td>{{ cedulaReferente }}</td>
+                        <td>{{ correoReferente }}</td>
+                        <td>{{ telefonoReferente }}</td>
+                      </tr>
+                    </table>
                     <hr class="my-3">
-                    <h1 class="mt-3">Referidos</h1>
-                  </div>
-                </div>
-              </div>
-            </div>
+                    <h1 class="mb-3">Referidos</h1>
 
-
-            <!-- Mostrar referidos de la cédula digitada -->
-            <div class="row justify-content-center">
-              <div class="col-md-5" v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
-                <div class="card mb-5">
-                  <div class="card-body container" style="height: 270px; width: 200px">
-                    <div class="d-flex align-items-center gap-2">
-                      <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
-                      <h5 class="card-text"><span class="fw-bold" style="font-weight: bold;">Referido:</span>
-                        {{
-                          referente.idReferido.nombre }}</h5>
-                    </div>
-                    <div>
-                      <span class="fw-bold" style="font-weight: bold;">Cédula:</span>
-                      <p class="card-text">
-                        {{
-                          referente.idReferido.cedula }}</p>
-                      <span class="fw-bold" style="font-weight: bold;">Correo:</span>
-                      <p class="card-text">
-                        {{
-                          referente.idReferido.correo }}</p>
-                      <span class="fw-bold" style="font-weight: bold;">Teléfono:</span>
-                      <p class="card-text"> {{
-                        referente.idReferido.telefono }}</p>
+                    <!-- Mostrar referidos de la cédula digitada -->
+                    <div class="row justify-content-center">
+                      <table>
+                        <tr>
+                          <th>Nombre</th>
+                          <th>Cédula</th>
+                          <th>Correo</th>
+                          <th>Teléfono</th>
+                        </tr>
+                        <tr v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
+                          <td>{{ referente.idReferido.nombre }}</td>
+                          <td>{{ referente.idReferido.cedula }}</td>
+                          <td>{{ referente.idReferido.correo }}</td>
+                          <td>{{ referente.idReferido.telefono }}</td>
+                        </tr>
+                      </table>
                     </div>
                   </div>
                 </div>
@@ -278,58 +267,44 @@ onMounted(() => {
                 <h4 class="text-danger text-center fw-bold mt-3">{{ validacion }}</h4>
 
                 <div class="row justify-content-center" v-if="mostrarReferentes">
-                  <div class="col-md-11">
-                    <div class="card">
-                      <div class="card-body container" style="height: auto;">
-                        <span class="fw-bold fs-5" style="font-weight: bold;">Referido:</span>
-                        <p class="card-text">
-                          {{
-                            nombreReferido }}</p>
-                        <span class="fw-bold fs-5" style="font-weight: bold;">Cedula:</span>
-                        <p class="card-text">
-                          {{
-                            cedulaRefido }}</p>
-                        <span class="fw-bold fs-5" style="font-weight: bold;">Correo:</span>
-                        <p class="card-text">
-                          {{
-                            correoReferido }}</p>
-                        <span class="fw-bold fs-5" style="font-weight: bold;">Teléfono:</span>
-                        <p class="card-text">
-                          {{
-                            telefonoReferido }}</p>
-                      </div>
-                    </div>
-                  </div>
+                  <h1 class="mb-4">Referido</h1>
+                  <table class="mb-4">
+                    <tr>
+                      <th>Nombre</th>
+                      <th>Cédula</th>
+                      <th>Correo</th>
+                      <th>Teléfono</th>
+                    </tr>
+                    <tr>
+                      <td>{{ nombreReferido }}</td>
+                      <td>{{ cedulaRefido }}</td>
+                      <td>{{ correoReferido }}</td>
+                      <td>{{ telefonoReferido }}</td>
+                    </tr>
+                  </table>
+
                   <hr class="my-3">
+                  <h1>Referente</h1>
                 </div>
               </div>
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
-              <div class="card mb-5">
-                <div class="card-body">
-                  <div class="d-flex  gap-3">
-                    <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
-                    <p class="card-text fs-5"><span class="fw-bold fs-5" style="font-weight: bold;">Referente:</span>
-                      {{
-                        referentes.nombre }}</p>
-                  </div>
-                  <div class="text-center">
-                    <span class="fw-bold fs-5" style="font-weight: bold;">Cédula:</span>
-                    <p class="card-text">
-                      {{
-                        referentes.cedula }}</p>
-                    <span class="fw-bold fs-5" style="font-weight: bold;">Correo:</span>
-                    <p class="card-text">
-                      {{
-                        referentes.correo }}</p>
-                    <span class="fw-bold fs-5" style="font-weight: bold;">Teléfono:</span>
-                    <p class="card-text">{{ referentes.telefono }}</p>
-                  </div>
-
-                </div>
-              </div>
+            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
+              <table>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Cédula</th>
+                  <th>Correo</th>
+                  <th>Teléfono</th>
+                </tr>
+                <tr>
+                  <td>{{ referentes.nombre }}</td>
+                  <td>{{ referentes.cedula }}</td>
+                  <td>{{ referentes.correo }}</td>
+                  <td>{{ referentes.telefono }}</td>
+                </tr>
+              </table>
             </div>
           </div>
         </div>
@@ -343,6 +318,14 @@ onMounted(() => {
 </template>
 
 <style scoped>
+#botones {
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  gap: 20px;
+  height: 40px;
+}
+
 .card {
   margin-bottom: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -407,5 +390,55 @@ hr {
 
 #logOut:hover i.fas {
   color: #000000;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ccc;
+
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 10px;
+  text-align: left;
+  text-align: center;
+}
+
+th {
+  background-color: #eee;
+  font-weight: bold;
+}
+
+td {
+  vertical-align: top;
+}
+
+.modal-dialog {
+  max-width: 600px;
+  max-height: 800px;
+}
+
+@media screen and (max-width: 768px) and (min-width: 386px) {
+  #logoBoton {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+@media screen and (max-width: 385px) {
+  #logoBoton {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #botones {
+    display: block;
+    justify-content: initial;
+    gap: 0;
+    height: auto;
+  }
 }
 </style>
