@@ -4,6 +4,7 @@ import { useStoreReferido } from '../stores/referido.js'
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
 import logoHere from "../assets/logo.png";
+import { utils, write } from 'xlsx';
 
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
@@ -120,6 +121,38 @@ async function filtrarPorCedulaReferido() {
   }
 }
 
+async function descargarReferentes() {
+  const referentes = useReferentes.referentes.map(referente => {
+    return {
+      Nombre: referente.nombre,
+      Cedula: referente.cedula,
+      Correo_electronico: referente.correo,
+      Telefono: referente.telefono,
+      Nombre_Referido: referente.idReferido.nombre,
+      Cedula_Referido: referente.idReferido.cedula,
+      Correo_Referido: referente.idReferido.correo,
+      Telefono_Referido: referente.idReferido.telefono
+    };
+  });
+
+  
+  const worksheet = utils.json_to_sheet(referentes);
+
+
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, 'Referentes');
+
+  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'referentes.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function home() {
   router.push("/login")
 }
@@ -143,8 +176,11 @@ onMounted(() => {
         <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
           Buscar referidos
         </button>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
+        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
           Buscar referente
+        </button>
+        <button class="btn btn-success"  @click="descargarReferentes()">
+          <i class="fas fa-download"></i>
         </button>
         <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
           <i class="fas fa-right-from-bracket"></i>
@@ -290,7 +326,8 @@ onMounted(() => {
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container p-3" v-if="mostrar"
+              style="display: flex; flex-direction: column; align-items: center;">
               <table>
                 <tr>
                   <th>Nombre</th>
