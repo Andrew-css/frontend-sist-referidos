@@ -28,6 +28,11 @@ async function getInfoReferentes() {
 async function getInfoReferidos() {
     try {
         const response = await useReferidos.getAll();
+        response.sort((a, b) => {
+            if (a.nombre < b.nombre) return -1;
+            if (a.nombre > b.nombre) return 1;
+            return 0;
+        });
         referidos.value = response;
         console.log("hola soy referidos", response);
     } catch (error) {
@@ -69,10 +74,6 @@ watch(referente, (newValue) => {
     console.log("soy nombre value", nombre.value, cedula.value, correo.value, telefono.value)
 });
 
-
-
-
-
 function goToMsg() {
     router.push("/msg");
 }
@@ -86,26 +87,27 @@ onMounted(() => {
 
 <template>
     <div class="main">
-        <div class="container " >
-            <form @submit.prevent="agregarNuevoReferente" class="w-50">
+        <div class="container" style="margin-top: 8%;">
+            <form @submit.prevent="agregarNuevoReferente" style="width: 40%;">
                 <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro servicio</p>
                 <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <select v-model="referente" class="form-select input" id="inputGroupSelect03"
+                        <select v-model="referente" class="form-select input" id="inputGroupSelect03" 
                             aria-label="Example select with button addon">
                             <option value="" disabled selected>Escoge tu referente...</option>
                             <option v-for="referido in referidos" :key="referido._id" :value="referido"
-                                :disabled="referido._id === idReferid">{{ referido.nombre }}</option>
+                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.cedula }} </option>
                         </select>
                     </div>
                 </div>
-
-                <input type="submit" value="Enviar" class="boton-elegante" style="width: 100%;">
+                <div style="width: 100%; display: flex; justify-content: center;">
+                    <input type="submit" value="Enviar" class="boton-elegante" style="width: 40%;">
+                </div>
             </form>
         </div>
 
-        
+
     </div>
 </template>
 
@@ -115,8 +117,6 @@ onMounted(() => {
     height: 100vh;
     width: 100%;
     display: flex;
-    justify-content: center;
-    align-items: center;
     background-color: #000000;
 }
 
@@ -132,7 +132,7 @@ form {
 
 .input {
     width: 100%;
-    height: 44px;
+    height: 45px;
     background-color: #05060f0a;
     border-radius: .5rem;
     padding: 0 1rem;
@@ -140,6 +140,8 @@ form {
     font-size: 1rem;
     transition: border-color .3s cubic-bezier(.25, .01, .25, 1) 0s, color .3s cubic-bezier(.25, .01, .25, 1) 0s, background .2s cubic-bezier(.25, .01, .25, 1) 0s;
 }
+
+
 
 .label {
     display: block;
@@ -199,4 +201,6 @@ form {
     background: rgb(128, 251, 128);
     color: black;
 }
+
+
 </style>

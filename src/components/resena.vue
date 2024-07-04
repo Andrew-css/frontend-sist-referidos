@@ -26,8 +26,7 @@ const msgNoReferido = ref("");
 const mostrarReferidos = ref(false);
 const mostrar = ref(false);
 const mostrarReferentes = ref(false);
-
-
+const mostrarDescargas = ref(false);
 
 
 async function getInfo() {
@@ -122,6 +121,13 @@ async function filtrarPorCedulaReferido() {
 }
 
 async function descargarReferentes() {
+
+  useReferentes.referentes.sort((a, b) => {
+    if (a.nombre < b.nombre) return -1;
+    if (a.nombre > b.nombre) return 1;
+    return 0;
+  });
+
   const referentes = useReferentes.referentes.map(referente => {
     return {
       Nombre: referente.nombre,
@@ -135,7 +141,7 @@ async function descargarReferentes() {
     };
   });
 
-  
+
   const worksheet = utils.json_to_sheet(referentes);
 
 
@@ -153,6 +159,47 @@ async function descargarReferentes() {
   URL.revokeObjectURL(url);
 }
 
+async function descargarReferidos() {
+
+
+  useReferidos.referidos.sort((a, b) => {
+    if (a.nombre < b.nombre) return -1;
+    if (a.nombre > b.nombre) return 1;
+    return 0;
+  });
+
+  const referidos = useReferidos.referidos.map(referido => {
+    return {
+      Nombre: referido.nombre,
+      Cedula: referido.cedula,
+      Correo_electronico: referido.correo,
+      Telefono: referido.telefono
+    };
+  });
+
+
+  const worksheet = utils.json_to_sheet(referidos);
+
+
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, 'Referidos');
+
+  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'referidos.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+
+function seleccionarDescarga() {
+  mostrarDescargas.value = true;
+}
+
 function home() {
   router.push("/login")
 }
@@ -166,30 +213,36 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="container mt-5 " style="width: 100%; height: 100%;">
-    <div class="d-flex align-items-center" id="logoBoton">
-      <div class="col-md-5">
-        <img :src="logoHere" alt="" style="max-width: 100px; max-height: 100px;">
-        <span class="fw-bold fs-4">Nombre Empresa</span>
+  <div style="width: 100%; height: 100%;">
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+      <div class="container-fluid" style="width: 100%;">
+        <div style="width: 50%;"> 
+          <img :src="logoHere" alt="" style="max-width: 100px; max-height: 100px;">
+          <span class="fw-bold fs-4">Nombre Empresa</span>
+        </div>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="width: 50%;">
+          <div id="botones">
+            <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
+              Buscar referidos
+            </button>
+            <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
+              Buscar referente
+            </button>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalDescarga">
+              <i class="fas fa-download"></i>
+            </button>
+            <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
+              <i class="fas fa-right-from-bracket"></i>
+            </button>
+          </div>
+        </div>
       </div>
-      <div class="col-md-7 " id="botones">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-          Buscar referidos
-        </button>
-        <button class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
-          Buscar referente
-        </button>
-        <button class="btn btn-success"  @click="descargarReferentes()">
-          <i class="fas fa-download"></i>
-        </button>
-        <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
-          <i class="fas fa-right-from-bracket"></i>
-        </button>
-      </div>
-    </div>
+    </nav>
+
+   
 
 
-    <div class="row">
+    <div class="row" style="width: 100%;">
       <h1 class="text-center mb-3">Opiniones de nuestros clientes</h1>
       <div class="row justify-content-end mb-4">
         <input type="text" class="form-control w-25" v-model="searchQuery" placeholder="Buscar cualquier campo...">
@@ -202,7 +255,7 @@ onMounted(() => {
               <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
               <h5 class="card-title ml-2">{{ referido.nombre }}</h5>
             </div>
-            <p class="card-text">Cédula: {{ referido.cedula }}</p>
+            <p class="card-text">Cédula: {{ referido.cedula }} // {{ referido.correo }}</p>
             <p class="card-text">Correo: {{ referido.correo }}</p>
             <p class="card-text">Teléfono: {{ referido.telefono }}</p>
             <p class="card-text">Método: {{ referido.metodo }}</p>
@@ -326,8 +379,7 @@ onMounted(() => {
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container p-3" v-if="mostrar"
-              style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
               <table>
                 <tr>
                   <th>Nombre</th>
@@ -349,6 +401,22 @@ onMounted(() => {
 
     </div>
 
+    <!-- Modal seleccionar descarga -->
+    <div class="modal fade" id="modalDescarga" tabindex="-1" aria-labelledby="modalBuscarReferentesLabel"
+      aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <p class="fw-bold text-center">Seleccione la lista de datos que desea descargar</p>
+          <div class="d-flex justify-content-center gap-5">
+            <button @click="descargarReferidos()" id="buttony">Referidos</button>
+            <button @click="descargarReferentes()" id="buttonn">Referentes</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
 
   </div>
@@ -392,6 +460,9 @@ onMounted(() => {
 .form-control {
   border: 1px solid #282727;
 }
+
+
+
 
 .opinion {
   max-width: 400px;
@@ -457,6 +528,40 @@ td {
   max-width: 600px;
   max-height: 800px;
 }
+
+#modalDescarga {
+  font-family: Arial, sans-serif;
+  border-radius: 5px;
+  padding: 20px;
+  margin: 40px auto;
+}
+
+#modalDescarga .modal-content {
+  padding: 20px;
+}
+
+#modalDescarga .modal-header {
+  border: none;
+  max-height: 20px
+}
+
+
+#buttony,
+#buttonn {
+  background-color: #4CAF50;
+  color: #ffffff;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+#buttony:hover,
+#buttonn:hover {
+  background-color: #3e8e41;
+}
+
+
 
 @media screen and (max-width: 768px) and (min-width: 386px) {
   #logoBoton {

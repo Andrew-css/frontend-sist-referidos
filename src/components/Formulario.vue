@@ -30,8 +30,8 @@ async function getInfo() {
 getInfo();
 
 const agregarNuevoReferido = async () => {
-    if (!nombre.value || !cedula.value || !correo.value || !telefono.value || !opinion.value || !metodo.value) {
-        validacion.value = "Por favor, complete todos los campos";
+    if (!nombre.value || !cedula.value || !correo.value || !telefono.value || !metodo.value) {
+        validacion.value = "Por favor, complete todos los campos *";
         setTimeout(() => {
             validacion.value = "";
             return;
@@ -136,20 +136,20 @@ function goToMensajeFinal() {
                 style="display: flex; flex-direction: column;justify-content: center;">
                 <h2 class="text-center" style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">
                     Formulario de datos</h2>
-                <h4 class="text-danger text-center fw-bold">{{ validacion }}</h4>
-                <label class="fw-bold mt-4 label" for="nombre">Digite su nombre</label>
+
+                <label class=" mt-4 label" for="nombre">Digite su nombre <span class="text-danger">*</span></label>
                 <input type="text" id="nombre" name="nombre" v-model="nombre" class="input"><br>
 
-                <label class="fw-bold label" for="cedula">Digite su cédula o número de documento</label>
+                <label class=" label" for="cedula">Digite su cédula o número de documento</label>
                 <input type="number" id="cedula" name="cedula" v-model="cedula" class="input"><br>
 
-                <label class="fw-bold label" for="correo">Digite su correo electrónico</label>
+                <label class=" label" for="correo">Digite su correo electrónico</label>
                 <input type="email" id="correo" name="correo" v-model="correo" class="input"><br>
 
-                <label class="fw-bold label" for="telefono">Digite su teléfono</label>
+                <label class=" label" for="telefono">Digite su teléfono</label>
                 <input type="number" id="telefono" name="telefono" v-model="telefono" class="input"><br>
 
-                <label class="fw-bold label" for="opinion">Por favor seleccione el método por el que encontró nuestro
+                <label class=" label" for="opinion">Por favor seleccione el método por el que encontró nuestro
                     servicio</label>
                 <select v-model="metodo" class="form-select mb-4 input" id="inputGroupSelect03"
                     aria-label="Example select with button addon">
@@ -158,14 +158,16 @@ function goToMensajeFinal() {
                     </option>
                 </select>
 
-                <label class="fw-bold label" for="opinion">Digite su opinión respecto al servicio ofrecido</label>
+                <label class=" label" for="opinion">Digite su opinión respecto al servicio ofrecido</label>
                 <textarea id="opinion" name="opinion" v-model="opinion" class="input"
                     style="height: 70px;"></textarea><br><br>
-
+                <p class="text-danger" style="font-size: 10px;">* campo obligatorio</p>
                 <input type="submit" value="Enviar" class="boton-elegante">
+
+                <h6 class="text-danger text-center fw-bold">{{ validacion }}</h6>
             </form>
 
-           
+
             <div v-if="showModal" class="modal">
                 <div class="modal-content">
                     <h2>Confirmar método</h2>
@@ -222,8 +224,7 @@ textarea {
 .label {
     display: block;
     margin-bottom: .3rem;
-    font-size: 110%;
-    font-weight: bold;
+    font-weight: 400;
     transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
 }
 
@@ -314,16 +315,16 @@ textarea {
     background-color: #ccc;
 }
 
-#buttony:hover{
-background-color: green;
-color: white;
-font-weight: bold;
+#buttony:hover {
+    background-color: green;
+    color: white;
+    font-weight: bold;
 }
 
-#buttonn:hover{
-background-color: red;
-color: black;
-font-weight: bold;
+#buttonn:hover {
+    background-color: red;
+    color: black;
+    font-weight: bold;
 }
 
 input[type="number"]::-webkit-inner-spin-button,
@@ -331,5 +332,4 @@ input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
 }
-
 </style>
