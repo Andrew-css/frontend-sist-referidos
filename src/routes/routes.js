@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory } from "vue-router";
-import HelloWorld from "../components/HelloWorld.vue";
 import Formulario from "../components/Formulario.vue";
 import FormularioReferente from "../components/FormReferente.vue";
 import Login from "../components/Login.vue";
@@ -26,8 +25,7 @@ const auth = (to, from, next) => {
 };
 
 const routes = [
-  { path: "/", component: HelloWorld },
-  { path: "/formulario", component: Formulario },
+  { path: "/", component: Formulario },
   { path: "/formref", component: FormularioReferente },
   { path: "/resena", beforeEnter: auth, component: Resenas },
   { path: "/msg", component: MensajeFinal },

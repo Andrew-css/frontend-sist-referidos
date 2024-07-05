@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted, computed } from 'vue'
+import { ref, watch, onMounted } from 'vue';
 import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
@@ -8,6 +8,7 @@ const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
 const router = useRouter();
 const nombre = ref("");
+const apellido = ref("");
 const cedula = ref("");
 const correo = ref("");
 const telefono = ref("");
@@ -44,6 +45,7 @@ async function getInfoReferidos() {
 const agregarNuevoReferente = async () => {
     const data = {
         nombre: nombre.value,
+        apellido: apellido.value,
         cedula: cedula.value,
         correo: correo.value,
         telefono: telefono.value,
@@ -66,12 +68,11 @@ const agregarNuevoReferente = async () => {
 };
 
 watch(referente, (newValue) => {
-    console.log("Hola soy referido selec", newValue);
     nombre.value = newValue.nombre;
+    apellido.value = newValue.apellido;
     cedula.value = newValue.cedula;
     correo.value = newValue.correo;
     telefono.value = newValue.telefono;
-    console.log("soy nombre value", nombre.value, cedula.value, correo.value, telefono.value)
 });
 
 function goToMsg() {
@@ -93,11 +94,11 @@ onMounted(() => {
                 <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <select v-model="referente" class="form-select input" id="inputGroupSelect03" 
+                        <select v-model="referente" class="form-select input" id="inputGroupSelect03"
                             aria-label="Example select with button addon">
                             <option value="" disabled selected>Escoge tu referente...</option>
                             <option v-for="referido in referidos" :key="referido._id" :value="referido"
-                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.cedula }} </option>
+                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.apellido }} </option>
                         </select>
                     </div>
                 </div>
@@ -106,8 +107,6 @@ onMounted(() => {
                 </div>
             </form>
         </div>
-
-
     </div>
 </template>
 
@@ -201,6 +200,4 @@ form {
     background: rgb(128, 251, 128);
     color: black;
 }
-
-
 </style>

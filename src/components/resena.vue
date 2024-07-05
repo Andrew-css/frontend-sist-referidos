@@ -3,8 +3,8 @@ import { ref, onMounted, computed } from 'vue'
 import { useStoreReferido } from '../stores/referido.js'
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
-import logoHere from "../assets/logo.png";
 import { utils, write } from 'xlsx';
+import logoHere from "../assets/logo.png";
 
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
@@ -15,10 +15,12 @@ const searchQuery = ref("");
 const validacion = ref("");
 const referentes = ref("");
 const nombreReferente = ref("");
+const apellidoReferente = ref("");
 const cedulaReferente = ref("");
 const correoReferente = ref("");
 const telefonoReferente = ref("");
 const nombreReferido = ref("");
+const apellidoReferido = ref("");
 const cedulaRefido = ref("");
 const correoReferido = ref("");
 const telefonoReferido = ref("");
@@ -40,7 +42,6 @@ async function getInfo() {
 
 async function getInfoReferentes() {
   try {
-
     const response = await useReferentes.getAll();
     console.log("hola soy referentes", response);
   } catch (error) {
@@ -52,6 +53,7 @@ async function getInfoReferentes() {
 const filteredReferidos = computed(() => {
   return useReferidos.referidos.reverse().filter(referido => {
     return (referido.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+      referido.apellido.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       referido.cedula.includes(searchQuery.value) ||
       referido.correo.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       referido.telefono.includes(searchQuery.value) ||
@@ -68,6 +70,7 @@ async function filtrarPorCedulaReferente() {
     console.log(response);
     if (useReferentes.estatus === 200 && response.length > 0) {
       nombreReferente.value = response[0].nombre;
+      apellidoReferente.value = response[0].apellido;
       cedulaReferente.value = response[0].cedula;
       correoReferente.value = response[0].correo;
       telefonoReferente.value = response[0].telefono;
@@ -76,6 +79,7 @@ async function filtrarPorCedulaReferente() {
     } else {
       msgNoReferido.value = "La cédula digitada no tiene referidos"
       nombreReferente.value = "";
+      apellidoReferente.value = "";
       cedulaReferente.value = "";
       correoReferente.value = "";
       telefonoReferente.value = "";
@@ -94,6 +98,7 @@ async function filtrarPorCedulaReferido() {
 
     if (useReferentes.estatus === 200) {
       nombreReferido.value = response.idReferido.nombre;
+      apellidoReferido.value = response.idReferido.apellido;
       cedulaRefido.value = response.idReferido.cedula;
       correoReferido.value = response.idReferido.correo;
       telefonoReferido.value = response.idReferido.telefono;
@@ -104,6 +109,7 @@ async function filtrarPorCedulaReferido() {
     } else if (useReferentes.estatus === 404) {
       validacion.value = useReferentes.validacion
       nombreReferido.value = "";
+      apellidoReferido.value = "";
       correoReferido.value = "";
       telefonoReferido.value = "";
       mostrarReferentes.value = false;
@@ -131,6 +137,7 @@ async function descargarReferentes() {
   const referentes = useReferentes.referentes.map(referente => {
     return {
       Nombre: referente.nombre,
+      Apellidos: referente.apellido,
       Cedula: referente.cedula,
       Correo_electronico: referente.correo,
       Telefono: referente.telefono,
@@ -171,6 +178,7 @@ async function descargarReferidos() {
   const referidos = useReferidos.referidos.map(referido => {
     return {
       Nombre: referido.nombre,
+      Apellidos: referido.apellido,
       Cedula: referido.cedula,
       Correo_electronico: referido.correo,
       Telefono: referido.telefono
@@ -216,11 +224,11 @@ onMounted(() => {
   <div style="width: 100%; height: 100%;">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid" style="width: 100%;">
-        <div style="width: 50%;"> 
+        <div style="width: 50%;">
           <img :src="logoHere" alt="" style="max-width: 100px; max-height: 100px;">
           <span class="fw-bold fs-4">Nombre Empresa</span>
         </div>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent" style="width: 50%;">
+        <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarSupportedContent" style="width: 50%;">
           <div id="botones">
             <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
               Buscar referidos
@@ -239,30 +247,31 @@ onMounted(() => {
       </div>
     </nav>
 
-   
+
 
 
     <div class="row" style="width: 100%;">
-      <h1 class="text-center mb-3">Opiniones de nuestros clientes</h1>
+
       <div class="row justify-content-end mb-4">
+        <h1 class="text-center mt-3">Opiniones de nuestros clientes</h1>
         <input type="text" class="form-control w-25" v-model="searchQuery" placeholder="Buscar cualquier campo...">
       </div>
 
-      <div class="col-md-4" v-for="(referido, index) in filteredReferidos" :key="index">
+      <div class="col-md-4 px-5" v-for="(referido, index) in filteredReferidos" :key="index">
         <div class="card mb-4">
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
               <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
-              <h5 class="card-title ml-2">{{ referido.nombre }}</h5>
+              <h5 class="card-title ml-2">{{ referido.nombre }} {{ referido.apellido }}</h5>
             </div>
-            <p class="card-text">Cédula: {{ referido.cedula }} // {{ referido.correo }}</p>
+            <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
             <p class="card-text">Correo: {{ referido.correo }}</p>
             <p class="card-text">Teléfono: {{ referido.telefono }}</p>
             <p class="card-text">Método: {{ referido.metodo }}</p>
             <VMenu class="vmenu">
-              <p class="opinion">Opinión: {{ referido.opinion }}</p>
+              <p class="opinion">Opinión: {{ referido.opinion || 'No aplica' }}</p>
               <template #popper>
-                <div class="descripVmenu">{{ referido.opinion }}</div>
+                <div class="descripVmenu">{{ referido.opinion || 'No aplica' }}</div>
               </template>
             </VMenu>
           </div>
@@ -298,7 +307,7 @@ onMounted(() => {
                         <th>Teléfono</th>
                       </tr>
                       <tr>
-                        <td>{{ nombreReferente }}</td>
+                        <td>{{ nombreReferente }} {{ apellidoReferente }}</td>
                         <td>{{ cedulaReferente }}</td>
                         <td>{{ correoReferente }}</td>
                         <td>{{ telefonoReferente }}</td>
@@ -308,22 +317,20 @@ onMounted(() => {
                     <h1 class="mb-3">Referidos</h1>
 
                     <!-- Mostrar referidos de la cédula digitada -->
-                    <div class="row justify-content-center">
-                      <table>
-                        <tr>
-                          <th>Nombre</th>
-                          <th>Cédula</th>
-                          <th>Correo</th>
-                          <th>Teléfono</th>
-                        </tr>
-                        <tr v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
-                          <td>{{ referente.idReferido.nombre }}</td>
-                          <td>{{ referente.idReferido.cedula }}</td>
-                          <td>{{ referente.idReferido.correo }}</td>
-                          <td>{{ referente.idReferido.telefono }}</td>
-                        </tr>
-                      </table>
-                    </div>
+                    <table>
+                      <tr>
+                        <th>Nombre</th>
+                        <th>Cédula</th>
+                        <th>Correo</th>
+                        <th>Teléfono</th>
+                      </tr>
+                      <tr v-for="(referente, index) in useReferentes.referentesCedulas" :key="index">
+                        <td>{{ referente.idReferido.nombre }} {{ referente.idReferido.apellido }}</td>
+                        <td>{{ referente.idReferido.cedula }}</td>
+                        <td>{{ referente.idReferido.correo }}</td>
+                        <td>{{ referente.idReferido.telefono }}</td>
+                      </tr>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -365,7 +372,7 @@ onMounted(() => {
                       <th>Teléfono</th>
                     </tr>
                     <tr>
-                      <td>{{ nombreReferido }}</td>
+                      <td>{{ nombreReferido }} {{ apellidoReferido }}</td>
                       <td>{{ cedulaRefido }}</td>
                       <td>{{ correoReferido }}</td>
                       <td>{{ telefonoReferido }}</td>
@@ -388,7 +395,7 @@ onMounted(() => {
                   <th>Teléfono</th>
                 </tr>
                 <tr>
-                  <td>{{ referentes.nombre }}</td>
+                  <td>{{ referentes.nombre }} {{ referentes.apellido }}</td>
                   <td>{{ referentes.cedula }}</td>
                   <td>{{ referentes.correo }}</td>
                   <td>{{ referentes.telefono }}</td>

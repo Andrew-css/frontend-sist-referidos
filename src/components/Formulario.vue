@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router';
 let router = useRouter();
 
 const nombre = ref("");
+const apellido = ref("");
 const cedula = ref("");
 const correo = ref("");
 const telefono = ref("");
@@ -14,13 +15,22 @@ const metodo = ref("");
 const useReferidos = useStoreReferido();
 const validacion = ref("");
 const showModal = ref(false);
+const bordeInput = ref(false);
+const errores = ref({
+    nombre: false,
+    apellido: false,
+    cedula: false,
+    correo: false,
+    telefono: false,
+    metodo: false,
+});
 const selectedMethod = ref("");
-const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Otro" }])
+const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Otro" }]);
 
 
 async function getInfo() {
     try {
-        const response = await useReferidos.getAll()
+        const response = await useReferidos.getAll();
         console.log("hola soy referidos", response);
     } catch (error) {
         console.log(error);
@@ -29,29 +39,38 @@ async function getInfo() {
 
 getInfo();
 
+
+
+
 const agregarNuevoReferido = async () => {
-    if (!nombre.value || !cedula.value || !correo.value || !telefono.value || !metodo.value) {
+    if (!nombre.value || !apellido.value || !cedula.value || !correo.value || !telefono.value || !metodo.value) {
+        errores.value.nombre = !nombre.value;
+        errores.value.apellido = !apellido.value;
+        errores.value.cedula = !cedula.value;
+        errores.value.correo = !correo.value;
+        errores.value.telefono = !telefono.value;
+        errores.value.metodo = !metodo.value;
         validacion.value = "Por favor, complete todos los campos *";
         setTimeout(() => {
             validacion.value = "";
+            bordeInput.value = false;
+            errores.value.nombre = false;
+            errores.value.apellido = false;
+            errores.value.cedula = false;
+            errores.value.correo = false;
+            errores.value.telefono = false;
+            errores.value.metodo = false;
             return;
-        }, 5000);
+        }, 3500);
         return;
     }
 
     if (!/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(correo.value)) {
         validacion.value = "Por favor, ingrese un correo electrónico válido";
+        errores.value.correo = !correo.value;
         setTimeout(() => {
             validacion.value = "";
-            return;
-        }, 5000);
-        return;
-    }
-
-    if (metodo.value === "") {
-        validacion.value = "Por favor, seleccione una opción en el método";
-        setTimeout(() => {
-            validacion.value = "";
+            errores.value.correo = false;
             return;
         }, 5000);
         return;
@@ -64,6 +83,7 @@ const agregarNuevoReferido = async () => {
         // Enviar formulario directamente si se seleccionó "Referido"
         const data = {
             nombre: nombre.value,
+            apellido: apellido.value,
             cedula: cedula.value,
             correo: correo.value,
             telefono: telefono.value,
@@ -92,6 +112,7 @@ const confirmMethod = async () => {
     // Enviar formulario con los datos seleccionados
     const data = {
         nombre: nombre.value,
+        apellido: apellido.value,
         cedula: cedula.value,
         correo: correo.value,
         telefono: telefono.value,
@@ -108,7 +129,6 @@ const confirmMethod = async () => {
             validacion.value = useReferidos.validacion;
             return;
         }
-
     } catch (error) {
         console.log('Error al agregar  referido:', error);
     }
@@ -138,21 +158,30 @@ function goToMensajeFinal() {
                     Formulario de datos</h2>
 
                 <label class=" mt-4 label" for="nombre">Digite su nombre <span class="text-danger">*</span></label>
-                <input type="text" id="nombre" name="nombre" v-model="nombre" class="input"><br>
+                <input type="text" id="nombre" name="nombre" v-model="nombre" class="input"
+                    :class="errores.nombre ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="cedula">Digite su cédula o número de documento</label>
-                <input type="number" id="cedula" name="cedula" v-model="cedula" class="input"><br>
+                <label class=" label" for="apellido">Digite sus apellidos <span class="text-danger">*</span></label>
+                <input type="text" id="apellido" name="apellido" v-model="apellido" class="input"
+                    :class="errores.apellido ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="correo">Digite su correo electrónico</label>
-                <input type="email" id="correo" name="correo" v-model="correo" class="input"><br>
+                <label class=" label" for="cedula">Digite su cédula o número de documento <span
+                        class="text-danger">*</span></label>
+                <input type="number" id="cedula" name="cedula" v-model="cedula" class="input"
+                    :class="errores.cedula ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="telefono">Digite su teléfono</label>
-                <input type="number" id="telefono" name="telefono" v-model="telefono" class="input"><br>
+                <label class=" label" for="correo">Digite su correo electrónico <span class="text-danger">*</span></label>
+                <input type="email" id="correo" name="correo" v-model="correo" class="input"
+                    :class="errores.correo ? 'input-border' : 'input'"><br>
+
+                <label class=" label" for="telefono">Digite su teléfono <span class="text-danger">*</span></label>
+                <input type="number" id="telefono" name="telefono" v-model="telefono" class="input"
+                    :class="errores.telefono ? 'input-border' : 'input'"><br>
 
                 <label class=" label" for="opinion">Por favor seleccione el método por el que encontró nuestro
-                    servicio</label>
+                    servicio <span class="text-danger">*</span></label>
                 <select v-model="metodo" class="form-select mb-4 input" id="inputGroupSelect03"
-                    aria-label="Example select with button addon">
+                    aria-label="Example select with button addon" :class="errores.metodo ? 'input-border' : 'input'">
                     <option value="" disabled selected>Escoge una opción...</option>
                     <option v-for="opcion in opciones" :key="opcion.nombre" :value="opcion.nombre">{{ opcion.nombre }}
                     </option>
@@ -164,7 +193,7 @@ function goToMensajeFinal() {
                 <p class="text-danger" style="font-size: 10px;">* campo obligatorio</p>
                 <input type="submit" value="Enviar" class="boton-elegante">
 
-                <h6 class="text-danger text-center fw-bold">{{ validacion }}</h6>
+                <h6 class="text-danger text-center fw-bold mt-3">{{ validacion }}</h6>
             </form>
 
 
@@ -331,5 +360,15 @@ input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.input-border {
+    width: 100%;
+    height: 44px;
+    background-color: #05060f0a;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border: 2px solid red;
 }
 </style>
