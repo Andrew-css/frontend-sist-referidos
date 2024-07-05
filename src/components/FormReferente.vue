@@ -16,6 +16,7 @@ const idReferid = ref(useReferidos.nuevoReferido);
 const referente = ref("");
 const referidos = ref([]);
 const mensajeValidacion = ref("");
+const mostrarError = ref(false);
 
 async function getInfoReferentes() {
     try {
@@ -43,6 +44,13 @@ async function getInfoReferidos() {
 
 
 const agregarNuevoReferente = async () => {
+    if (!referente.value) {
+        mostrarError.value = !nombre.value;
+        setTimeout(() => {
+            mostrarError.value = false;
+        }, 3500);
+    }
+
     const data = {
         nombre: nombre.value,
         apellido: apellido.value,
@@ -59,7 +67,6 @@ const agregarNuevoReferente = async () => {
             goToMsg();
             console.log("Reseña añadida")
         } else if (useReferentes.estatus === 400) {
-            mensajeValidacion.value = "Por favor escoja un referente"
             return;
         }
     } catch (error) {
@@ -90,15 +97,15 @@ onMounted(() => {
     <div class="main">
         <div class="container" style="margin-top: 8%;">
             <form @submit.prevent="agregarNuevoReferente" style="width: 40%;">
-                <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro servicio</p>
-                <p class="text-danger text-center fw-bold fs-5">{{ mensajeValidacion }}</p>
+                <p class="text-center fw-bold fs-5" :class="mostrarError ? 'label-error' : 'label'">Por favor seleccione la persona que le recomendó nuestro servicio</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <select v-model="referente" class="form-select input" id="inputGroupSelect03"
+                        <select v-model="referente" class="form-select input" :class="mostrarError ? 'input-border' : 'input'"  id="inputGroupSelect03"
                             aria-label="Example select with button addon">
                             <option value="" disabled selected>Escoge tu referente...</option>
                             <option v-for="referido in referidos" :key="referido._id" :value="referido"
-                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.apellido }} </option>
+                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.apellido }}
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -200,4 +207,27 @@ form {
     background: rgb(128, 251, 128);
     color: black;
 }
+
+.label{
+color: black;
+}
+
+.label-error{
+    display: block;
+    margin-bottom: .3rem;
+    font-weight: bold;
+    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+    color: red;
+}
+
+.input-border {
+    width: 100%;
+    height: 44px;
+    background-color: #05060f0a;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border: 2px solid red;
+}
+
 </style>

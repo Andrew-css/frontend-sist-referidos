@@ -157,28 +157,28 @@ function goToMensajeFinal() {
                 <h2 class="text-center" style="font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;">
                     Formulario de datos</h2>
 
-                <label class=" mt-4 label" for="nombre">Digite su nombre <span class="text-danger">*</span></label>
+                <label class=" mt-4 label" for="nombre" :class="errores.nombre ? 'label-error' : 'label'" >Digite su nombre <span class="text-danger">*</span></label>
                 <input type="text" id="nombre" name="nombre" v-model="nombre" class="input"
                     :class="errores.nombre ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="apellido">Digite sus apellidos <span class="text-danger">*</span></label>
+                <label class=" label" for="apellido" :class="errores.nombre ? 'label-error' : 'label'">Digite sus apellidos <span class="text-danger">*</span></label>
                 <input type="text" id="apellido" name="apellido" v-model="apellido" class="input"
                     :class="errores.apellido ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="cedula">Digite su cédula o número de documento <span
+                <label class=" label" for="cedula" :class="errores.nombre ? 'label-error' : 'label'">Digite su cédula o número de documento <span
                         class="text-danger">*</span></label>
                 <input type="number" id="cedula" name="cedula" v-model="cedula" class="input"
                     :class="errores.cedula ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="correo">Digite su correo electrónico <span class="text-danger">*</span></label>
+                <label class=" label" for="correo" :class="errores.nombre ? 'label-error' : 'label'">Digite su correo electrónico <span class="text-danger">*</span></label>
                 <input type="email" id="correo" name="correo" v-model="correo" class="input"
                     :class="errores.correo ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="telefono">Digite su teléfono <span class="text-danger">*</span></label>
+                <label class=" label" for="telefono" :class="errores.nombre ? 'label-error' : 'label'">Digite su teléfono <span class="text-danger">*</span></label>
                 <input type="number" id="telefono" name="telefono" v-model="telefono" class="input"
                     :class="errores.telefono ? 'input-border' : 'input'"><br>
 
-                <label class=" label" for="opinion">Por favor seleccione el método por el que encontró nuestro
+                <label class=" label" for="opinion" :class="errores.nombre ? 'label-error' : 'label'">Por favor seleccione el método por el que encontró nuestro
                     servicio <span class="text-danger">*</span></label>
                 <select v-model="metodo" class="form-select mb-4 input" id="inputGroupSelect03"
                     aria-label="Example select with button addon" :class="errores.metodo ? 'input-border' : 'input'">
@@ -371,4 +371,13 @@ input[type="number"]::-webkit-outer-spin-button {
     font-size: 1rem;
     border: 2px solid red;
 }
+
+.label-error{
+    display: block;
+    margin-bottom: .3rem;
+    font-weight: bold;
+    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
+    color: red;
+}
+
 </style>
