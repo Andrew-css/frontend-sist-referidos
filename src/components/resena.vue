@@ -2,12 +2,14 @@
 import { ref, onMounted, computed } from 'vue'
 import { useStoreReferido } from '../stores/referido.js'
 import { useStoreReferente } from '../stores/referente.js';
+import { useStoreUsuarios } from '../stores/usuario.js';
 import { useRouter } from 'vue-router';
 import { utils, write } from 'xlsx';
 import logoHere from "../assets/logo.png";
 
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
+const useUsuario = useStoreUsuarios();
 const cedula = ref("");
 const cedulaReferido = ref("");
 const router = useRouter();
@@ -209,7 +211,11 @@ function seleccionarDescarga() {
 }
 
 function home() {
+  useUsuario.token = '';
+  useUsuario.usuario = '';
+  useUsuario.id = '';
   router.push("/login")
+
 }
 
 onMounted(() => {
