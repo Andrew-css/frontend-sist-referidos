@@ -31,6 +31,8 @@ const mostrarReferidos = ref(false);
 const mostrar = ref(false);
 const mostrarReferentes = ref(false);
 const mostrarDescargas = ref(false);
+const loadIngresar = ref(false);
+const msgButton = ref("Buscar");
 
 
 async function getInfo() {
@@ -67,6 +69,8 @@ const filteredReferidos = computed(() => {
 
 
 async function filtrarPorCedulaReferente() {
+  loadIngresar.value = true;
+  msgButton.value = "";
   try {
     const response = await useReferentes.getPorCedula(cedula.value)
     console.log(response);
@@ -78,6 +82,8 @@ async function filtrarPorCedulaReferente() {
       telefonoReferente.value = response[0].telefono;
       mostrarReferidos.value = true;
       msgNoReferido.value = "";
+      loadIngresar.value = false;
+      msgButton.value = "Buscar";
     } else {
       msgNoReferido.value = "La cédula digitada no tiene referidos"
       nombreReferente.value = "";
@@ -86,14 +92,20 @@ async function filtrarPorCedulaReferente() {
       correoReferente.value = "";
       telefonoReferente.value = "";
       mostrarReferidos.value = false;
+      loadIngresar.value = false;
+      msgButton.value = "Buscar";
     }
 
   } catch (error) {
     console.log(error);
+    mostrarReferidos.value = false;
+    msgButton.value = "Buscar";
   }
 }
 
 async function filtrarPorCedulaReferido() {
+  loadIngresar.value = true;
+  msgButton.value = "";
   try {
     const response = await useReferentes.getPorCedulaReferido(cedulaReferido.value);
     console.log("h", response);
@@ -108,6 +120,9 @@ async function filtrarPorCedulaReferido() {
       referentes.value = response;
       mostrar.value = true;
       msgNoReferido.value = "";
+      mostrarReferidos.value = false;
+      loadIngresar.value = false;
+      msgButton.value = "Buscar";
     } else if (useReferentes.estatus === 404) {
       validacion.value = useReferentes.validacion
       nombreReferido.value = "";
@@ -115,6 +130,9 @@ async function filtrarPorCedulaReferido() {
       correoReferido.value = "";
       telefonoReferido.value = "";
       mostrarReferentes.value = false;
+      mostrarReferidos.value = false;
+      loadIngresar.value = false;
+      msgButton.value = "Buscar";
       mostrar.value = false;
       setTimeout(() => {
         validacion.value = "";
@@ -125,6 +143,8 @@ async function filtrarPorCedulaReferido() {
     }
   } catch (error) {
     console.log("error", error);
+    mostrarReferidos.value = false;
+    msgButton.value = "Buscar";
   }
 }
 
@@ -300,7 +320,12 @@ onMounted(() => {
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferente">Buscar</button>
+                    <button value="Buscar" class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferente">
+                      <div v-if="loadIngresar">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      </div>
+                      {{ msgButton }}
+                    </button>
                   </div>
                   <h4 class="text-danger text-center fw-bold">{{ msgNoReferido }}</h4>
                   <div class="row justify-content-center" v-if="mostrarReferidos">
@@ -363,7 +388,12 @@ onMounted(() => {
 
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferido">Buscar</button>
+                    <button value="Buscar" class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferido">
+                      <div v-if="loadIngresar">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      </div>
+                      {{ msgButton }}
+                    </button>
                   </div>
                 </div>
                 <h4 class="text-danger text-center fw-bold mt-3">{{ validacion }}</h4>

@@ -61,6 +61,8 @@ const Login = async () => {
         }
     } catch (error) {
         console.log('Error al logearse:', error);
+        loadIngresar.value = false;
+        msgButton.value = "Ingresar";
     }
 };
 
