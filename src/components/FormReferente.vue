@@ -96,11 +96,13 @@ onMounted(() => {
 <template>
     <div class="main">
         <div class="container" style="margin-top: 8%;">
-            <form @submit.prevent="agregarNuevoReferente" style="width: 40%;">
-                <p class="text-center fw-bold fs-5" :class="mostrarError ? 'label-error' : 'label'">Por favor seleccione la persona que le recomendó nuestro servicio</p>
+            <form @submit.prevent="agregarNuevoReferente">
+                <p class="text-center fw-bold fs-5" :class="mostrarError ? 'label-error' : 'label'">Por favor seleccione la
+                    persona que le recomendó nuestro servicio</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <select v-model="referente" class="form-select input" :class="mostrarError ? 'input-border' : 'input'"  id="inputGroupSelect03"
+                        <select v-model="referente" class="form-select input"
+                            :class="mostrarError ? 'input-border' : 'input'" id="inputGroupSelect03"
                             aria-label="Example select with button addon">
                             <option value="" disabled selected>Escoge tu referente...</option>
                             <option v-for="referido in referidos" :key="referido._id" :value="referido"
@@ -110,7 +112,7 @@ onMounted(() => {
                     </div>
                 </div>
                 <div style="width: 100%; display: flex; justify-content: center;">
-                    <input type="submit" value="Enviar" class="boton-elegante" style="width: 40%;">
+                    <input type="submit" value="Enviar" class="boton-elegante">
                 </div>
             </form>
         </div>
@@ -208,11 +210,11 @@ form {
     color: black;
 }
 
-.label{
-color: black;
+.label {
+    color: black;
 }
 
-.label-error{
+.label-error {
     display: block;
     margin-bottom: .3rem;
     font-weight: bold;
@@ -230,4 +232,32 @@ color: black;
     border: 2px solid red;
 }
 
-</style>
+@media screen and (max-width: 768px) {
+    form {
+        width: 90%;
+        padding: 20px;
+    }
+
+    .input {
+        height: 40px;
+    }
+
+    .boton-elegante {
+        padding: 5px 20px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    form {
+        width: 95%;
+        padding: 15px;
+    }
+
+    .input {
+        height: 35px;
+    }
+
+    .boton-elegante {
+        padding: 5px 15px;
+    }
+}</style>

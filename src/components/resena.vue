@@ -249,38 +249,56 @@ onMounted(() => {
 <template>
   <div style="width: 100%; height: 100%;">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
-      <div class="container-fluid" style="width: 100%;">
-        <div style="width: 50%;">
+      <div class="container-fluid">
+        <div class="logo-container">
           <img :src="logoHere" alt="" style="max-width: 100px; max-height: 100px;">
-          <span class="fw-bold fs-4">Nombre Empresa</span>
+          <span class="fw-bold fs-4">Nombre empresa</span>
         </div>
-        <div class="collapse navbar-collapse d-flex justify-content-end" id="navbarSupportedContent" style="width: 50%;">
-          <div id="botones">
-            <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-              Buscar referidos
-            </button>
-            <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
-              Buscar referente
-            </button>
-            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalDescarga">
-              <i class="fas fa-download"></i>
-            </button>
-            <button class="btn btn-danger fw-bold" @click="home()" id="logOut">
-              <i class="fas fa-right-from-bracket"></i>
-            </button>
-          </div>
+        <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+          aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ms-auto gap-3" id="listaBotones">
+            <li class="nav-item">
+              <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
+                Buscar referidos
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
+                Buscar referente
+              </button>
+            </li>
+            <li class="nav-item">
+              <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#modalDescarga">
+                <i class="fas fa-download"></i>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="btn btn-danger fw-bold" @click="home()">
+                <i class="fas fa-right-from-bracket"></i>
+              </button>
+            </li>
+          </ul>
         </div>
+
       </div>
     </nav>
 
 
 
 
+
     <div class="row" style="width: 100%;">
 
-      <div class="row justify-content-end mb-4">
-        <h1 class="text-center mt-3">Opiniones de nuestros clientes</h1>
-        <input type="text" class="form-control w-25" v-model="searchQuery" placeholder="Buscar cualquier campo...">
+      <div class="row justify-content-end mb-4" id="contenedorTI">
+        <div class="titulo">
+          <h1 class="text-center mt-3">Opiniones de nuestros clientes</h1>
+        </div>
+        <input type="text" class="form-control" id="inputBusqueda" v-model="searchQuery"
+          placeholder="Buscar cualquier campo...">
       </div>
 
       <div class="col-md-4 px-5" v-for="(referido, index) in filteredReferidos" :key="index">
@@ -288,7 +306,13 @@ onMounted(() => {
           <div class="card-body">
             <div class="d-flex align-items-center gap-2">
               <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
-              <h5 class="card-title ml-2">{{ referido.nombre }} {{ referido.apellido }}</h5>
+              <VMenu class="vmenu">
+                <h5 class="card-title nombre">{{ referido.nombre }} {{ referido.apellido }}</h5>
+              <template #popper>
+                <div class="descripVmenu">{{ referido.nombre }} {{ referido.apellido }}</div>
+              </template>
+            </VMenu>
+
             </div>
             <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
             <p class="card-text">Correo: {{ referido.correo }}</p>
@@ -316,6 +340,7 @@ onMounted(() => {
             <div class="modal-body" style="width: 100%;">
 
               <!-- Input para buscar por cédula -->
+              <p>Digite la cédula del referente para buscar sus referidos</p>
               <input type="text" class="form-control" v-model="cedula" placeholder="Ingrese la cédula del referente">
               <div class="container text-center">
                 <div class="row justify-content-center">
@@ -380,8 +405,8 @@ onMounted(() => {
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="width: 100%;">
-
               <!-- Input para buscar por cédula -->
+              <p>Digite la cédula del referido para buscar su referente</p>
               <input type="number" class="form-control" v-model="cedulaReferido"
                 placeholder="Ingrese la cédula del referido">
               <div class="container text-center">
@@ -441,7 +466,6 @@ onMounted(() => {
           </div>
         </div>
       </div>
-
     </div>
 
     <!-- Modal seleccionar descarga -->
@@ -466,14 +490,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-#botones {
-  display: flex;
-  flex-direction: row;
-  justify-content: end;
-  gap: 20px;
-  height: 40px;
-}
-
 .card {
   margin-bottom: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -504,12 +520,16 @@ onMounted(() => {
   border: 1px solid #282727;
 }
 
-
-
-
 .opinion {
   max-width: 400px;
   max-height: 23px;
+  word-wrap: break-word;
+  overflow: hidden;
+}
+
+.nombre{
+  max-width: 400px;
+  max-height: 45px;
   word-wrap: break-word;
   overflow: hidden;
 }
@@ -604,26 +624,65 @@ td {
   background-color: #3e8e41;
 }
 
+#inputBusqueda {
+  width: 20%;
+}
 
+.logo-container {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
-@media screen and (max-width: 768px) and (min-width: 386px) {
-  #logoBoton {
-    display: flex;
-    flex-direction: column;
+/* Estilos media query */
+
+@media screen and (max-width: 989px) and (min-width: 472px) {
+  #inputBusqueda {
+    width: 50%;
   }
 }
 
-@media screen and (max-width: 385px) {
-  #logoBoton {
-    display: flex;
-    flex-direction: column;
+@media screen and (max-width: 991px) {
+  .logo-container {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
 
-  #botones {
+  .logo-container img {
+    max-width: 80px;
+    max-height: 80px;
+  }
+
+  .custom-toggler {
+    margin-left: auto;
+    margin-right: auto;
     display: block;
-    justify-content: initial;
-    gap: 0;
-    height: auto;
+  }
+
+  #listaBotones {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 15px;
+  }
+}
+
+
+@media screen and (max-width: 472px) {
+
+  #contenedorTI {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+  }
+
+  #inputBusqueda {
+    margin-top: 10px;
+    width: 80%;
   }
 }
 </style>
+
