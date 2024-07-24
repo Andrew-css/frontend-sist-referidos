@@ -308,10 +308,10 @@ onMounted(() => {
               <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
               <VMenu class="vmenu">
                 <h5 class="card-title nombre">{{ referido.nombre }} {{ referido.apellido }}</h5>
-              <template #popper>
-                <div class="descripVmenu">{{ referido.nombre }} {{ referido.apellido }}</div>
-              </template>
-            </VMenu>
+                <template #popper>
+                  <div class="descripVmenu">{{ referido.nombre }} {{ referido.apellido }}</div>
+                </template>
+              </VMenu>
 
             </div>
             <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
@@ -328,7 +328,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Modal buscar referido por referente-->
+      <!-- Modal buscar referidos del referente-->
       <div class="modal fade" id="modalBuscarReferidos" tabindex="-1" aria-labelledby="modalBuscarReferidosLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -345,7 +345,7 @@ onMounted(() => {
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferente">
+                    <button value="Buscar" class="btn btn-success btn-sm " @click="filtrarPorCedulaReferente">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -413,7 +413,7 @@ onMounted(() => {
 
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm w-50" @click="filtrarPorCedulaReferido">
+                    <button value="Buscar" class="btn btn-success btn-sm " @click="filtrarPorCedulaReferido">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -527,7 +527,7 @@ onMounted(() => {
   overflow: hidden;
 }
 
-.nombre{
+.nombre {
   max-width: 400px;
   max-height: 45px;
   word-wrap: break-word;
@@ -566,16 +566,19 @@ hr {
 table {
   border-collapse: collapse;
   width: 100%;
+  /* Asegura que la tabla ocupe todo el ancho disponible */
+  max-width: 100%;
+  /* Ajusta el ancho máximo para asegurar que no se desborde */
+  table-layout: fixed;
   border: 1px solid #ccc;
-
 }
 
 th,
 td {
   border: 1px solid #ccc;
   padding: 10px;
-  text-align: left;
   text-align: center;
+  
 }
 
 th {
@@ -668,6 +671,7 @@ td {
     margin-top: 15px;
   }
 }
+
 
 
 @media screen and (max-width: 472px) {
