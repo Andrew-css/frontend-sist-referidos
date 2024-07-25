@@ -341,7 +341,7 @@ onMounted(() => {
 
               <!-- Input para buscar por cédula -->
               <p>Digite la cédula del referente para buscar sus referidos</p>
-              <input type="text" class="form-control" v-model="cedula" placeholder="Ingrese la cédula del referente">
+              <input type="number" class="form-control" v-model="cedula" placeholder="Ingrese la cédula del referente">
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
@@ -395,7 +395,7 @@ onMounted(() => {
         </div>
       </div>
 
-      <!-- Mostrar referente de la cédula digitada -->
+      <!-- Mostrar referente del referido -->
       <div class="modal fade" id="modalBuscarReferentes" tabindex="-1" aria-labelledby="modalBuscarReferentesLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -567,9 +567,8 @@ table {
   border-collapse: collapse;
   width: 100%;
   /* Asegura que la tabla ocupe todo el ancho disponible */
-  max-width: 100%;
-  /* Ajusta el ancho máximo para asegurar que no se desborde */
   table-layout: fixed;
+  /* Ajusta el ancho máximo para asegurar que no se desborde */
   border: 1px solid #ccc;
 }
 
@@ -578,7 +577,6 @@ td {
   border: 1px solid #ccc;
   padding: 10px;
   text-align: center;
-  
 }
 
 th {
@@ -587,7 +585,9 @@ th {
 }
 
 td {
-  vertical-align: top;
+  word-wrap: break-word;
+  overflow: hidden;
+  max-width: 200px;
 }
 
 .modal-dialog {
@@ -636,6 +636,12 @@ td {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Estilos media query */
