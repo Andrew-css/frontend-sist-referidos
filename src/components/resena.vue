@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
-import { useStoreReferido } from '../stores/referido.js'
+import { ref, onMounted, computed } from 'vue';
+import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
 import { useStoreUsuarios } from '../stores/usuario.js';
+import { useStoreNivelReferente } from '../stores/nivel_referente.js';
 import { useRouter } from 'vue-router';
 import { utils, write } from 'xlsx';
 import logoHere from "../assets/logo.png";
@@ -10,6 +11,7 @@ import logoHere from "../assets/logo.png";
 const useReferidos = useStoreReferido();
 const useReferentes = useStoreReferente();
 const useUsuario = useStoreUsuarios();
+const useNivelReferente = useStoreNivelReferente();
 const cedula = ref("");
 const cedulaReferido = ref("");
 const router = useRouter();
@@ -31,18 +33,19 @@ const mostrarReferidos = ref(false);
 const mostrar = ref(false);
 const mostrarReferentes = ref(false);
 const mostrarDescargas = ref(false);
+const mostrarNiveles = ref(false); // Nuevo estado para mostrar niveles
 const loadIngresar = ref(false);
 const msgButton = ref("Buscar");
-
+const nivelesReferente = ref([]); // Datos de niveles
 
 async function getInfo() {
   try {
-    const response = await useReferidos.getAll()
+    const response = await useReferidos.getAll();
     console.log("hola soy referidos", response);
   } catch (error) {
     console.log(error);
   }
-};
+}
 
 async function getInfoReferentes() {
   try {
@@ -51,8 +54,17 @@ async function getInfoReferentes() {
   } catch (error) {
     console.log(error);
   }
-};
+}
 
+async function getInfoNivelReferente() {
+  try {
+    const response = await useNivelReferente.getAll();
+    nivelesReferente.value = response; // Guarda los niveles obtenidos
+    console.log("hola soy niveles referentes", response);
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 const filteredReferidos = computed(() => {
   return useReferidos.referidos.reverse().filter(referido => {
@@ -62,17 +74,15 @@ const filteredReferidos = computed(() => {
       referido.correo.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       referido.telefono.includes(searchQuery.value) ||
       referido.metodo.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      referido.opinion.toLowerCase().includes(searchQuery.value.toLowerCase()))
-  })
-})
-
-
+      referido.opinion.toLowerCase().includes(searchQuery.value.toLowerCase()));
+  });
+});
 
 async function filtrarPorCedulaReferente() {
   loadIngresar.value = true;
   msgButton.value = "";
   try {
-    const response = await useReferentes.getPorCedula(cedula.value)
+    const response = await useReferentes.getPorCedula(cedula.value);
     console.log(response);
     if (useReferentes.estatus === 200 && response.length > 0) {
       nombreReferente.value = response[0].nombre;
@@ -85,7 +95,7 @@ async function filtrarPorCedulaReferente() {
       loadIngresar.value = false;
       msgButton.value = "Buscar";
     } else {
-      msgNoReferido.value = "La cédula digitada no tiene referidos"
+      msgNoReferido.value = "La cédula digitada no tiene referidos";
       nombreReferente.value = "";
       apellidoReferente.value = "";
       cedulaReferente.value = "";
@@ -95,7 +105,6 @@ async function filtrarPorCedulaReferente() {
       loadIngresar.value = false;
       msgButton.value = "Buscar";
     }
-
   } catch (error) {
     console.log(error);
     mostrarReferidos.value = false;
@@ -124,7 +133,7 @@ async function filtrarPorCedulaReferido() {
       loadIngresar.value = false;
       msgButton.value = "Buscar";
     } else if (useReferentes.estatus === 404) {
-      validacion.value = useReferentes.validacion
+      validacion.value = useReferentes.validacion;
       nombreReferido.value = "";
       apellidoReferido.value = "";
       correoReferido.value = "";
@@ -149,7 +158,6 @@ async function filtrarPorCedulaReferido() {
 }
 
 async function descargarReferentes() {
-
   useReferentes.referentes.sort((a, b) => {
     if (a.nombre < b.nombre) return -1;
     if (a.nombre > b.nombre) return 1;
@@ -170,16 +178,11 @@ async function descargarReferentes() {
     };
   });
 
-
   const worksheet = utils.json_to_sheet(referentes);
-
-
   const workbook = utils.book_new();
   utils.book_append_sheet(workbook, worksheet, 'Referentes');
 
   const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -189,8 +192,6 @@ async function descargarReferentes() {
 }
 
 async function descargarReferidos() {
-
-
   useReferidos.referidos.sort((a, b) => {
     if (a.nombre < b.nombre) return -1;
     if (a.nombre > b.nombre) return 1;
@@ -207,16 +208,11 @@ async function descargarReferidos() {
     };
   });
 
-
   const worksheet = utils.json_to_sheet(referidos);
-
-
   const workbook = utils.book_new();
   utils.book_append_sheet(workbook, worksheet, 'Referidos');
 
   const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-
-
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -224,7 +220,6 @@ async function descargarReferidos() {
   a.click();
   URL.revokeObjectURL(url);
 }
-
 
 function seleccionarDescarga() {
   mostrarDescargas.value = true;
@@ -234,16 +229,18 @@ function home() {
   useUsuario.token = '';
   useUsuario.usuario = '';
   useUsuario.id = '';
-  router.push("/login")
+  router.push("/login");
+}
 
+function mostrarTablaNiveles() {
+  mostrarNiveles.value = !mostrarNiveles.value; // Cambia el estado para mostrar/ocultar la tabla
 }
 
 onMounted(() => {
   getInfo();
   getInfoReferentes();
-
+  getInfoNivelReferente(); // Carga los niveles al montar
 });
-
 </script>
 
 <template>
@@ -263,7 +260,7 @@ onMounted(() => {
           <ul class="navbar-nav ms-auto gap-3" id="listaBotones">
             <li class="nav-item">
               <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-                Buscar referidos
+                Buscar embajador  
               </button>
             </li>
             <li class="nav-item">
@@ -295,7 +292,7 @@ onMounted(() => {
 
       <div class="row justify-content-end mb-4" id="contenedorTI">
         <div class="titulo">
-          <h1 class="text-center mt-3">Opiniones de nuestros clientes</h1>
+          <h1 class="text-center mt-3">Nuestros clientes</h1>
         </div>
         <input type="text" class="form-control" id="inputBusqueda" v-model="searchQuery"
           placeholder="Buscar cualquier campo...">
@@ -319,9 +316,9 @@ onMounted(() => {
             <p class="card-text">Teléfono: {{ referido.telefono }}</p>
             <p class="card-text">Método: {{ referido.metodo }}</p>
             <VMenu class="vmenu">
-              <p class="opinion">Opinión: {{ referido.opinion || 'No aplica' }}</p>
+              <p class="opinion">Opinión: {{ referido.opinion  }}</p>
               <template #popper>
-                <div class="descripVmenu">{{ referido.opinion || 'No aplica' }}</div>
+                <div class="descripVmenu">{{ referido.opinion  }}</div>
               </template>
             </VMenu>
           </div>
@@ -334,14 +331,14 @@ onMounted(() => {
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalBuscarReferidosLabel">Buscar referidos por referente</h5>
+              <h5 class="modal-title" id="modalBuscarReferidosLabel">Buscar referidos</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="width: 100%;">
 
               <!-- Input para buscar por cédula -->
-              <p>Digite la cédula del referente para buscar sus referidos</p>
-              <input type="number" class="form-control" v-model="cedula" placeholder="Ingrese la cédula del referente">
+              <p>Digite la cédula del embajador para buscar sus referidos</p>
+              <input type="number" class="form-control" v-model="cedula" placeholder="Ingrese la cédula del embajador">
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">

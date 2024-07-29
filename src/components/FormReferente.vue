@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useStoreReferido } from '../stores/referido.js';
 import { useStoreReferente } from '../stores/referente.js';
 import { useRouter } from 'vue-router';
@@ -17,6 +17,8 @@ const referente = ref("");
 const referidos = ref([]);
 const mensajeValidacion = ref("");
 const mostrarError = ref(false);
+const searchQuery = ref(""); // Nueva referencia para el campo de búsqueda
+const dropdownVisible = ref(false);
 
 async function getInfoReferentes() {
     try {
@@ -42,12 +44,13 @@ async function getInfoReferidos() {
     }
 };
 
-
 const agregarNuevoReferente = async () => {
     if (!referente.value) {
         mostrarError.value = !nombre.value;
+        mensajeValidacion.value = "Por favor, seleccione la persona";
         setTimeout(() => {
             mostrarError.value = false;
+            mensajeValidacion.value = "";
         }, 3500);
     }
 
@@ -91,34 +94,55 @@ onMounted(() => {
     getInfoReferentes();
 });
 
+// Computed property para las opciones filtradas
+const filteredReferidos = computed(() => {
+    return referidos.value.filter(referido =>
+        referido.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
+        referido.apellido.toLowerCase().includes(searchQuery.value.toLowerCase())
+    );
+});
+
+function selectReferido(referido) {
+    searchQuery.value = `${referido.nombre} ${referido.apellido}`;
+    referente.value = referido;
+    dropdownVisible.value = false;
+}
+
+function hideDropdown() {
+    setTimeout(() => {
+        dropdownVisible.value = false;
+    }, 200);
+}
 </script>
 
 <template>
     <div class="main">
         <div class="container" style="margin-top: 8%;">
             <form @submit.prevent="agregarNuevoReferente">
-                <p class="text-center fw-bold fs-5" :class="mostrarError ? 'label-error' : 'label'">Por favor seleccione la
-                    persona que le recomendó nuestro servicio</p>
+                <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro servicio</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <select v-model="referente" class="form-select input"
-                            :class="mostrarError ? 'input-border' : 'input'" id="inputGroupSelect03"
-                            aria-label="Example select with button addon">
-                            <option value="" disabled selected>Escoge tu referente...</option>
-                            <option v-for="referido in referidos" :key="referido._id" :value="referido"
-                                :disabled="referido._id === idReferid">{{ referido.nombre }} {{ referido.apellido }}
-                            </option>
-                        </select>
+                        <!-- Campo de búsqueda -->
+                        <input type="text" class="form-control" :class="mostrarError ? 'label-error' : 'label'"
+                            v-model="searchQuery" placeholder="Buscar persona..." @focus="dropdownVisible = true"
+                            @blur="hideDropdown" />
+                        <div class="dropdown" v-show="dropdownVisible">
+                            <div v-for="referido in filteredReferidos" :key="referido._id" class="dropdown-item"
+                                @mousedown.prevent="selectReferido(referido)">
+                                {{ referido.nombre }} {{ referido.apellido }}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div style="width: 100%; display: flex; justify-content: center;">
                     <input type="submit" value="Enviar" class="boton-elegante">
                 </div>
+                <h6 class="text-danger text-center fw-bold mt-3">{{ mensajeValidacion }}</h6>
             </form>
         </div>
     </div>
 </template>
-
+  
 <style scoped>
 .main {
     margin: 0;
@@ -151,14 +175,6 @@ form {
 
 
 
-.label {
-    display: block;
-    margin-bottom: .3rem;
-    font-size: .9rem;
-    font-weight: bold;
-    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
-}
-
 .input:hover,
 .input:focus,
 .input-group:hover .input {
@@ -172,54 +188,55 @@ form {
 }
 
 .boton-elegante {
-    padding: 5px 30px;
-    border: 2px solid #2c2c2c;
-    background-color: #1a1a1a;
-    color: #ffffff;
-    font-size: 1.2rem;
-    cursor: pointer;
-    border-radius: 30px;
-    transition: all 0.4s ease;
-    outline: none;
-    position: relative;
-    overflow: hidden;
-    font-weight: bold;
+  padding: 5px 30px;
+  border: 2px solid #2c2c2c;
+  background-color: #1a1a1a;
+  color: #ffffff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  border-radius: 30px;
+  transition: all 0.3s ease;
+  outline: none;
+  position: relative;
+  overflow: hidden;
+  font-weight: bold;
 }
 
 .boton-elegante::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: radial-gradient(circle,
-            rgba(255, 255, 255, 0.25) 0%,
-            rgba(255, 255, 255, 0) 70%);
-    transform: scale(0);
-    transition: transform 0.5s ease;
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+  transform: scale(0);
+  transition: transform 0.5s ease;
 }
 
 .boton-elegante:hover::after {
-    transform: scale(4);
+  transform: scale(2);
 }
 
 .boton-elegante:hover {
-    border-color: #666666;
-    background: rgb(128, 251, 128);
-    color: black;
+  border-color: #444444; /* Lighter border color for subtlety */
+  background-color: #000000; /* Slightly lighter black for a softer effect */
+  color: #e0e0e0; /* Softer white text color */
 }
+
 
 .label {
     color: black;
 }
 
 .label-error {
-    display: block;
-    margin-bottom: .3rem;
-    font-weight: bold;
-    transition: color .3s cubic-bezier(.25, .01, .25, 1) 0s;
-    color: red;
+    width: 100%;
+    height: 44px;
+    background-color: #05060f0a;
+    border-radius: .5rem;
+    padding: 0 1rem;
+    font-size: 1rem;
+    border: 2px solid red;
 }
 
 .input-border {
@@ -231,6 +248,34 @@ form {
     font-size: 1rem;
     border: 2px solid red;
 }
+
+.input-group {
+  position: relative; /* Set the parent to relative positioning */
+}
+
+.dropdown {
+  position: absolute; /* Position the dropdown absolutely relative to the parent */
+  top: 100%; /* Position it directly below the input field */
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  z-index: 10;
+  max-height: 150px;
+  overflow-y: auto;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Optional: Add some shadow for better visibility */
+}
+
+.dropdown-item {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown-item:hover {
+  background-color: #a7fa88;
+}
+
 
 @media screen and (max-width: 768px) {
     form {
@@ -260,4 +305,6 @@ form {
     .boton-elegante {
         padding: 5px 15px;
     }
-}</style>
+}
+</style>
+  
