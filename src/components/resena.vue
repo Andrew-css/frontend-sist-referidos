@@ -23,6 +23,8 @@ const apellidoReferente = ref("");
 const cedulaReferente = ref("");
 const correoReferente = ref("");
 const telefonoReferente = ref("");
+const dataReferente = ref([]);
+const nivelReferente = ref("");
 const nombreReferido = ref("");
 const apellidoReferido = ref("");
 const cedulaRefido = ref("");
@@ -34,10 +36,16 @@ const mostrar = ref(false);
 const mostrarReferentes = ref(false);
 const mostrarDescargas = ref(false);
 const mostrarNiveles = ref(false); // Nuevo estado para mostrar niveles
+const loadingConfirmacion = ref(false);
 const loadIngresar = ref(false);
+const loadNivel = ref(false);
 const msgButton = ref("Buscar");
+const msgAsignarButton = ref("Asignar Nivel");
+const msgNivelReferente = ref("");
 const nivelesReferente = ref([]); // Datos de niveles
 const nivelSeleccionado = ref(null); // Nivel seleccionado
+const mostrarConfirmacion = ref(false); // Nuevo estado para mostrar la confirmación
+
 
 async function getInfo() {
   try {
@@ -58,9 +66,13 @@ async function getInfoReferentes() {
 }
 
 async function getInfoNivelReferente() {
+  loadNivel.value = true;
+  msgAsignarButton.value = "";
   try {
     const response = await useNivelReferente.getAll();
     nivelesReferente.value = response; // Guarda los niveles obtenidos
+    loadNivel.value = false;
+    msgAsignarButton.value = "Asignar Nivel";
     console.log("hola soy niveles referentes", response);
   } catch (error) {
     console.log(error);
@@ -91,6 +103,7 @@ async function filtrarPorCedulaReferente() {
       cedulaReferente.value = response[0].cedula;
       correoReferente.value = response[0].correo;
       telefonoReferente.value = response[0].telefono;
+      nivelReferente.value = response[0].idNivelReferente ? response[0].idNivelReferente.nombre : "No asignado";
       mostrarReferidos.value = true;
       msgNoReferido.value = "";
       loadIngresar.value = false;
@@ -102,6 +115,7 @@ async function filtrarPorCedulaReferente() {
       cedulaReferente.value = "";
       correoReferente.value = "";
       telefonoReferente.value = "";
+      nivelReferente.value = "";
       mostrarReferidos.value = false;
       loadIngresar.value = false;
       msgButton.value = "Buscar";
@@ -126,17 +140,20 @@ async function filtrarPorCedulaReferido() {
       cedulaRefido.value = response.idReferido.cedula;
       correoReferido.value = response.idReferido.correo;
       telefonoReferido.value = response.idReferido.telefono;
+      dataReferente.value = response;
+      mostrar.value = true;
       mostrarReferentes.value = true;
-      msgNoReferido.value = "";
+      validacion.value = "";
       loadIngresar.value = false;
       msgButton.value = "Buscar";
     } else {
-      msgNoReferido.value = "La cédula digitada no tiene referidos";
+      validacion.value = "La cédula digitada no tiene referente";
       nombreReferente.value = "";
       apellidoReferente.value = "";
       cedulaReferente.value = "";
       correoReferente.value = "";
       telefonoReferente.value = "";
+      mostrar.value = false;
       mostrarReferentes.value = false;
       loadIngresar.value = false;
       msgButton.value = "Buscar";
@@ -144,7 +161,9 @@ async function filtrarPorCedulaReferido() {
   } catch (error) {
     console.log(error);
     mostrarReferentes.value = false;
-    msgButton.value = "Buscar";
+    mostrar.value = false;
+    validacion.value = "",
+      msgButton.value = "Buscar";
   }
 }
 
@@ -155,21 +174,119 @@ function mostrarTablaNiveles() {
   }
 }
 
-async function asignarNivel() {
+function mostrarModalConfirmacion() {
   if (nivelSeleccionado.value) {
-    try {
-      // Lógica para asignar el nivel seleccionado
-      console.log("Nivel seleccionado:", nivelSeleccionado.value);
-      // Aquí puedes agregar la lógica para enviar el nivel seleccionado al backend
-    } catch (error) {
-      console.error("Error al asignar el nivel:", error);
-    }
+    mostrarConfirmacion.value = true; // Mostrar el modal de confirmación
   } else {
-    console.log("No se ha seleccionado ningún nivel");
+    msgNivelReferente.value = "Seleccione un nivel de embajador";
+    setTimeout(() => {
+      msgNivelReferente.value = "";
+    }, 4000);
   }
 }
 
-// Llama a la función getInfo() y getInfoReferentes() al montar el componente
+async function confirmarAsignacion() {
+  loadingConfirmacion.value = true;
+  if (nivelSeleccionado.value) {
+    const data = {
+      idNivelReferente: nivelSeleccionado.value._id
+    };
+
+    try {
+      const response = await useReferentes.editarRefNivEmb(cedula.value, data);
+      if (useReferentes.estatus === 200) {
+        loadingConfirmacion.value = false;
+        filtrarPorCedulaReferente();
+        mostrarNiveles.value = false;
+        mostrarConfirmacion.value = false; // Cerrar el modal de confirmación
+        msgNivelReferente.value = "Se editó correctamente el nivel de embajador";
+        setTimeout(() => {
+          msgNivelReferente.value = "";
+        }, 5000);
+      } else if (useReferentes.estatus === 400) {
+        console.log("No se ha seleccionado ningún nivel");
+        loadingConfirmacion.value = false;
+      }
+    } catch (error) {
+      console.log('Error al editar:', error);
+      loadingConfirmacion.value = false;
+    }
+  }
+}
+
+// Cerrar el modal de confirmación
+function cancelarAsignacion() {
+  mostrarConfirmacion.value = false;
+}
+
+// Descargar datos
+
+async function descargarReferentes() {
+  useReferentes.referentes.sort((a, b) => {
+    if (a.nombre < b.nombre) return -1;
+    if (a.nombre > b.nombre) return 1;
+    return 0;
+  });
+
+  const referentes = useReferentes.referentes.map(referente => {
+    return {
+      Nombre_Embajador: referente.nombre,
+      Apellidos_Embajador: referente.apellido,
+      Cedula_Embajador: referente.cedula,
+      Correo_electronico_Embajador: referente.correo,
+      Telefono_Embajador: referente.telefono,
+      Nombre_Referido: referente.idReferido.nombre,
+      Cedula_Referido: referente.idReferido.cedula,
+      Correo_Referido: referente.idReferido.correo,
+      Telefono_Referido: referente.idReferido.telefono
+    };
+  });
+
+  const worksheet = utils.json_to_sheet(referentes);
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, 'Referentes');
+
+  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Embajadores.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+async function descargarReferidos() {
+  useReferidos.referidos.sort((a, b) => {
+    if (a.nombre < b.nombre) return -1;
+    if (a.nombre > b.nombre) return 1;
+    return 0;
+  });
+
+  const referidos = useReferidos.referidos.map(referido => {
+    return {
+      Nombre: referido.nombre,
+      Apellido: referido.apellido,
+      Cedula: referido.cedula,
+      Correo_electronico: referido.correo,
+      Telefono: referido.telefono,
+      Metodo: referido.metodo,
+      Opinion: referido.opinion
+    };
+  });
+
+  const worksheet = utils.json_to_sheet(referidos);
+  const workbook = utils.book_new();
+  utils.book_append_sheet(workbook, worksheet, 'Referidos');
+
+  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'Referidos.xlsx';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 onMounted(() => {
   getInfo();
   getInfoReferentes();
@@ -260,7 +377,6 @@ onMounted(() => {
       </div>
 
       <!-- Modal buscar referidos del referente/embajador-->
-      <!-- Modal buscar referidos del referente/embajador-->
       <div class="modal fade" id="modalBuscarReferidos" tabindex="-1" aria-labelledby="modalBuscarReferidosLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -293,19 +409,30 @@ onMounted(() => {
                         <th>Cédula</th>
                         <th>Correo</th>
                         <th>Teléfono</th>
+                        <th>Nivel Embajador</th>
                       </tr>
                       <tr>
                         <td>{{ nombreReferente }} {{ apellidoReferente }}</td>
                         <td>{{ cedulaReferente }}</td>
                         <td>{{ correoReferente }}</td>
                         <td>{{ telefonoReferente }}</td>
+                        <td v-if="nivelReferente">{{ nivelReferente }}</td>
+                        <td v-else>No asignado</td>
                       </tr>
                     </table>
 
                     <!-- Botón para asignar nivel -->
                     <div class="text-center mt-3">
-                      <button class="btn btn-primary" @click="mostrarTablaNiveles">Asignar nivel</button>
+                      <button value="Buscar" class="btn btn-primary" @click="mostrarTablaNiveles">
+                        <div v-if="loadNivel">
+                          <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        {{ msgAsignarButton }}
+                      </button>
                     </div>
+
+
+
 
                     <!-- Tabla de niveles -->
                     <div v-if="mostrarNiveles" class="mt-3">
@@ -331,11 +458,46 @@ onMounted(() => {
                         </tbody>
                       </table>
                       <div class="text-center mt-3">
-                        <button class="btn btn-success" @click="asignarNivel">Enviar</button>
+                        <button class="btn btn-success" @click="mostrarModalConfirmacion">Enviar</button>
                       </div>
+
+
+                      <!-- Modal de confirmación de asignación de nivel -->
+                      <div v-if="mostrarConfirmacion" class="modal fade show" tabindex="-1"
+                        style="display: block; background: rgba(0,0,0,0.5);" aria-modal="true" role="dialog">
+                        <div class="modal-dialog modal-dialog-centered">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Confirmación</h5>
+                              <button type="button" class="btn-close" @click="cancelarAsignacion"
+                                aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <p>¿Está seguro que desea asignarle el {{ nivelSeleccionado.nombre }} a {{ nombreReferente
+                              }} {{ apellidoReferente }} con la cédula {{ cedula }}?</p>
+                            </div>
+                            <div class="modal-footer">
+                              <button @click="confirmarAsignacion" class="btn btn-success"
+                                :disabled="loadingConfirmacion">
+                                <span v-if="loadingConfirmacion" class="spinner-border spinner-border-sm" role="status"
+                                  aria-hidden="true"></span>
+                                <span v-if="!loadingConfirmacion">Sí</span>
+                              </button>
+                              <button @click="cancelarAsignacion" class="btn btn-danger" :disabled="loadingConfirmacion">
+                                No
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
+                    <p
+                      :class="{ 'text-danger fw-bold fs-5': msgNivelReferente === 'Seleccione un nivel de embajador', 'text-success fw-bold fs-5': msgNivelReferente === 'Se editó correctamente el nivel de embajador' }">
+                      {{ msgNivelReferente }}
+                    </p>
                     <hr class="my-3">
-                    <h1 class="mb-3">Referidos</h1>
+                    <h1 class="mb-3">Lista de referidos</h1>
 
                     <!-- Mostrar referidos de la cédula digitada -->
                     <table>
@@ -414,8 +576,7 @@ onMounted(() => {
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container p-3" v-if="mostrar"
-              style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
               <table>
                 <tr>
                   <th>Nombre</th>
@@ -424,10 +585,10 @@ onMounted(() => {
                   <th>Teléfono</th>
                 </tr>
                 <tr>
-                  <td>{{ referentes.nombre }} {{ referentes.apellido }}</td>
-                  <td>{{ referentes.cedula }}</td>
-                  <td>{{ referentes.correo }}</td>
-                  <td>{{ referentes.telefono }}</td>
+                  <td>{{ dataReferente.nombre }} {{ dataReferente.apellido }}</td>
+                  <td>{{ dataReferente.cedula }}</td>
+                  <td>{{ dataReferente.correo }}</td>
+                  <td>{{ dataReferente.telefono }}</td>
                 </tr>
               </table>
             </div>
@@ -446,8 +607,8 @@ onMounted(() => {
           </div>
           <p class="fw-bold text-center">Seleccione la lista de datos que desea descargar</p>
           <div class="d-flex justify-content-center gap-5">
-            <button @click="descargarReferidos()" id="buttony">Referidos</button>
-            <button @click="descargarReferentes()" id="buttonn">Referentes</button>
+            <button @click="descargarReferidos()" id="buttony">Todos los usuarios</button>
+            <button @click="descargarReferentes()" id="buttonn">Embajadores</button>
           </div>
         </div>
       </div>
@@ -559,7 +720,7 @@ td {
 }
 
 .modal-dialog {
-  max-width: 600px;
+  max-width: 750px;
   max-height: 800px;
 }
 
@@ -611,6 +772,7 @@ input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
 }
+
 
 /* Estilos media query */
 

@@ -28,7 +28,7 @@ const errores = ref({
 const visitoHotel = ref("");
 const mostrarOpinion = ref(false);
 const selectedMethod = ref("");
-const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Otro" }]);
+const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Cliente antiguo" } , { nombre: "Otro" }]);
 
 
 

@@ -82,6 +82,18 @@ export const useStoreReferente = defineStore(
       }
     };
 
+    const editarRefNivEmb = async (cedula, data) => {
+      try {
+        const response = await axios.put(`${modelo}/editar-por-cedula/${cedula}`, data);
+        estatus.value = response.status;
+        console.log(response);
+        return response.data;
+      } catch (error) {
+        console.log(error);
+        estatus.value = error.response.status;
+      }
+    };
+
     const activar = async (id) => {
       try {
         const response = await axios.put(`${modelo}/activar/${id}`);
@@ -108,6 +120,7 @@ export const useStoreReferente = defineStore(
       getAll,
       getPorCedula,
       getPorCedulaReferido,
+      editarRefNivEmb,
       agregar,
       editar,
       activar,
