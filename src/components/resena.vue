@@ -37,6 +37,7 @@ const mostrarNiveles = ref(false); // Nuevo estado para mostrar niveles
 const loadIngresar = ref(false);
 const msgButton = ref("Buscar");
 const nivelesReferente = ref([]); // Datos de niveles
+const nivelSeleccionado = ref(null); // Nivel seleccionado
 
 async function getInfo() {
   try {
@@ -126,122 +127,55 @@ async function filtrarPorCedulaReferido() {
       correoReferido.value = response.idReferido.correo;
       telefonoReferido.value = response.idReferido.telefono;
       mostrarReferentes.value = true;
-      referentes.value = response;
-      mostrar.value = true;
       msgNoReferido.value = "";
-      mostrarReferidos.value = false;
       loadIngresar.value = false;
       msgButton.value = "Buscar";
-    } else if (useReferentes.estatus === 404) {
-      validacion.value = useReferentes.validacion;
-      nombreReferido.value = "";
-      apellidoReferido.value = "";
-      correoReferido.value = "";
-      telefonoReferido.value = "";
-      mostrarReferentes.value = false;
-      mostrarReferidos.value = false;
-      loadIngresar.value = false;
-      msgButton.value = "Buscar";
-      mostrar.value = false;
-      setTimeout(() => {
-        validacion.value = "";
-        return;
-      }, 5000);
     } else {
-      return;
+      msgNoReferido.value = "La cédula digitada no tiene referidos";
+      nombreReferente.value = "";
+      apellidoReferente.value = "";
+      cedulaReferente.value = "";
+      correoReferente.value = "";
+      telefonoReferente.value = "";
+      mostrarReferentes.value = false;
+      loadIngresar.value = false;
+      msgButton.value = "Buscar";
     }
   } catch (error) {
-    console.log("error", error);
-    mostrarReferidos.value = false;
+    console.log(error);
+    mostrarReferentes.value = false;
     msgButton.value = "Buscar";
   }
 }
 
-async function descargarReferentes() {
-  useReferentes.referentes.sort((a, b) => {
-    if (a.nombre < b.nombre) return -1;
-    if (a.nombre > b.nombre) return 1;
-    return 0;
-  });
-
-  const referentes = useReferentes.referentes.map(referente => {
-    return {
-      Nombre: referente.nombre,
-      Apellidos: referente.apellido,
-      Cedula: referente.cedula,
-      Correo_electronico: referente.correo,
-      Telefono: referente.telefono,
-      Nombre_Referido: referente.idReferido.nombre,
-      Cedula_Referido: referente.idReferido.cedula,
-      Correo_Referido: referente.idReferido.correo,
-      Telefono_Referido: referente.idReferido.telefono
-    };
-  });
-
-  const worksheet = utils.json_to_sheet(referentes);
-  const workbook = utils.book_new();
-  utils.book_append_sheet(workbook, worksheet, 'Referentes');
-
-  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'referentes.xlsx';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-async function descargarReferidos() {
-  useReferidos.referidos.sort((a, b) => {
-    if (a.nombre < b.nombre) return -1;
-    if (a.nombre > b.nombre) return 1;
-    return 0;
-  });
-
-  const referidos = useReferidos.referidos.map(referido => {
-    return {
-      Nombre: referido.nombre,
-      Apellidos: referido.apellido,
-      Cedula: referido.cedula,
-      Correo_electronico: referido.correo,
-      Telefono: referido.telefono
-    };
-  });
-
-  const worksheet = utils.json_to_sheet(referidos);
-  const workbook = utils.book_new();
-  utils.book_append_sheet(workbook, worksheet, 'Referidos');
-
-  const blob = new Blob([write(workbook, { bookType: 'xlsx', type: 'buffer' })], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'referidos.xlsx';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function seleccionarDescarga() {
-  mostrarDescargas.value = true;
-}
-
-function home() {
-  useUsuario.token = '';
-  useUsuario.usuario = '';
-  useUsuario.id = '';
-  router.push("/login");
-}
-
 function mostrarTablaNiveles() {
-  mostrarNiveles.value = !mostrarNiveles.value; // Cambia el estado para mostrar/ocultar la tabla
+  mostrarNiveles.value = !mostrarNiveles.value;
+  if (mostrarNiveles.value) {
+    getInfoNivelReferente();
+  }
 }
 
+async function asignarNivel() {
+  if (nivelSeleccionado.value) {
+    try {
+      // Lógica para asignar el nivel seleccionado
+      console.log("Nivel seleccionado:", nivelSeleccionado.value);
+      // Aquí puedes agregar la lógica para enviar el nivel seleccionado al backend
+    } catch (error) {
+      console.error("Error al asignar el nivel:", error);
+    }
+  } else {
+    console.log("No se ha seleccionado ningún nivel");
+  }
+}
+
+// Llama a la función getInfo() y getInfoReferentes() al montar el componente
 onMounted(() => {
   getInfo();
   getInfoReferentes();
-  getInfoNivelReferente(); // Carga los niveles al montar
 });
 </script>
+
 
 <template>
   <div style="width: 100%; height: 100%;">
@@ -260,7 +194,7 @@ onMounted(() => {
           <ul class="navbar-nav ms-auto gap-3" id="listaBotones">
             <li class="nav-item">
               <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-                Buscar embajador  
+                Buscar embajador
               </button>
             </li>
             <li class="nav-item">
@@ -316,16 +250,17 @@ onMounted(() => {
             <p class="card-text">Teléfono: {{ referido.telefono }}</p>
             <p class="card-text">Método: {{ referido.metodo }}</p>
             <VMenu class="vmenu">
-              <p class="opinion">Opinión: {{ referido.opinion  }}</p>
+              <p class="opinion">Opinión: {{ referido.opinion }}</p>
               <template #popper>
-                <div class="descripVmenu">{{ referido.opinion  }}</div>
+                <div class="descripVmenu">{{ referido.opinion }}</div>
               </template>
             </VMenu>
           </div>
         </div>
       </div>
 
-      <!-- Modal buscar referidos del referente-->
+      <!-- Modal buscar referidos del referente/embajador-->
+      <!-- Modal buscar referidos del referente/embajador-->
       <div class="modal fade" id="modalBuscarReferidos" tabindex="-1" aria-labelledby="modalBuscarReferidosLabel"
         aria-hidden="true">
         <div class="modal-dialog">
@@ -342,7 +277,7 @@ onMounted(() => {
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm " @click="filtrarPorCedulaReferente">
+                    <button value="Buscar" class="btn btn-success btn-sm" @click="filtrarPorCedulaReferente">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -351,7 +286,7 @@ onMounted(() => {
                   </div>
                   <h4 class="text-danger text-center fw-bold">{{ msgNoReferido }}</h4>
                   <div class="row justify-content-center" v-if="mostrarReferidos">
-                    <h1 class="mb-3">Referente</h1>
+                    <h1 class="mb-3">Embajador</h1>
                     <table class="mb-4">
                       <tr>
                         <th>Nombre</th>
@@ -366,6 +301,39 @@ onMounted(() => {
                         <td>{{ telefonoReferente }}</td>
                       </tr>
                     </table>
+
+                    <!-- Botón para asignar nivel -->
+                    <div class="text-center mt-3">
+                      <button class="btn btn-primary" @click="mostrarTablaNiveles">Asignar nivel</button>
+                    </div>
+
+                    <!-- Tabla de niveles -->
+                    <div v-if="mostrarNiveles" class="mt-3">
+                      <h2 class="mb-3">Niveles Embajador</h2>
+                      <table class="table table-bordered">
+                        <thead>
+                          <tr>
+                            <th>Seleccionar</th>
+                            <th>Nivel</th>
+                            <th>Descripción</th>
+                            <th>Beneficios</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr v-for="(nivel, index) in nivelesReferente" :key="index">
+                            <td>
+                              <input type="radio" :value="nivel" v-model="nivelSeleccionado">
+                            </td>
+                            <td>{{ nivel.nombre }}</td>
+                            <td>{{ nivel.descripcion }}</td>
+                            <td>{{ nivel.beneficio }}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                      <div class="text-center mt-3">
+                        <button class="btn btn-success" @click="asignarNivel">Enviar</button>
+                      </div>
+                    </div>
                     <hr class="my-3">
                     <h1 class="mb-3">Referidos</h1>
 
@@ -391,6 +359,8 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
+
 
       <!-- Mostrar referente del referido -->
       <div class="modal fade" id="modalBuscarReferentes" tabindex="-1" aria-labelledby="modalBuscarReferentesLabel"
@@ -444,7 +414,8 @@ onMounted(() => {
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container p-3" v-if="mostrar"
+              style="display: flex; flex-direction: column; align-items: center;">
               <table>
                 <tr>
                   <th>Nombre</th>
@@ -635,7 +606,7 @@ td {
   gap: 10px;
 }
 
-input[type="number"]::-webkit-inner-spin-button, 
+input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
@@ -692,4 +663,3 @@ input[type="number"]::-webkit-outer-spin-button {
   }
 }
 </style>
-
