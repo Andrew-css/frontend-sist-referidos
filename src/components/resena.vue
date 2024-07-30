@@ -295,7 +295,7 @@ onMounted(() => {
 
 
 <template>
-  <div style="width: 100%; height: 100%;">
+  <div style="width: 100%; height: 100vh;">
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <div class="logo-container">
@@ -393,7 +393,8 @@ onMounted(() => {
               <div class="container text-center">
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm" @click="filtrarPorCedulaReferente">
+                    <button value="Buscar" class="btn btn-success btn-sm fw-bold fs-5 text-uppercase"
+                      @click="filtrarPorCedulaReferente">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -423,7 +424,7 @@ onMounted(() => {
 
                     <!-- Botón para asignar nivel -->
                     <div class="text-center mt-3">
-                      <button value="Buscar" class="btn btn-primary" @click="mostrarTablaNiveles">
+                      <button value="Buscar" class="btn btn-primary fw-bold fs-5 text-uppercase" @click="mostrarTablaNiveles">
                         <div v-if="loadNivel">
                           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
@@ -458,7 +459,7 @@ onMounted(() => {
                         </tbody>
                       </table>
                       <div class="text-center mt-3">
-                        <button class="btn btn-success" @click="mostrarModalConfirmacion">Enviar</button>
+                        <button class="btn btn-success fw-bold fs-5 text-uppercase" @click="mostrarModalConfirmacion">Enviar</button>
                       </div>
 
 
@@ -542,7 +543,7 @@ onMounted(() => {
 
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm " @click="filtrarPorCedulaReferido">
+                    <button value="Buscar" class="btn btn-success btn-sm fw-bold fs-5 text-uppercase" @click="filtrarPorCedulaReferido">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -600,7 +601,7 @@ onMounted(() => {
     <!-- Modal seleccionar descarga -->
     <div class="modal fade" id="modalDescarga" tabindex="-1" aria-labelledby="modalBuscarReferentesLabel"
       aria-hidden="true">
-      <div class="modal-dialog">
+      <div class="modal-dialog" id="contenidoDescarga">
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -622,6 +623,7 @@ onMounted(() => {
 .card {
   margin-bottom: 20px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #8f8f8f;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -722,6 +724,10 @@ td {
 .modal-dialog {
   max-width: 750px;
   max-height: 800px;
+}
+
+#contenidoDescarga {
+  max-width: 450px;
 }
 
 #modalDescarga {

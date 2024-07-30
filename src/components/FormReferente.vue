@@ -17,7 +17,14 @@ const referente = ref("");
 const referidos = ref([]);
 const mensajeValidacion = ref("");
 const mostrarError = ref(false);
-const searchQuery = ref(""); // Nueva referencia para el campo de búsqueda
+const searchQuery = ref(""); onMounted(() => {
+    // Eliminar el referido creado anteriormente en el componente "Formulario Referido"
+    const index = referidos.value.findIndex(referido => referido._id === idReferid.value);
+    if (index !== -1) {
+        referidos.value.splice(index, 1);
+    }
+    idReferid.value = null; // Resetear la id del referido
+});
 const dropdownVisible = ref(false);
 
 async function getInfoReferentes() {
@@ -92,20 +99,32 @@ function goToMsg() {
 onMounted(() => {
     getInfoReferidos();
     getInfoReferentes();
+
+    // Eliminar el referido creado anteriormente en el componente "Formulario Referido"
+    const index = referidos.value.findIndex(referido => referido._id === idReferid.value);
+    if (index !== -1) {
+        referidos.value.splice(index, 1);
+    }
+    idReferid.value = null; // Resetear la id del referido
 });
 
 // Computed property para las opciones filtradas
 const filteredReferidos = computed(() => {
-    return referidos.value.filter(referido =>
-        referido.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-        referido.apellido.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+    if (searchQuery.value === '') {
+        return referidos.value;
+    } else {
+        const query = searchQuery.value.trim().toLowerCase();
+        return referidos.value.filter(referido =>
+            `${referido.nombre} ${referido.apellido}`.toLowerCase().includes(query)
+        );
+    }
 });
 
 function selectReferido(referido) {
     searchQuery.value = `${referido.nombre} ${referido.apellido}`;
     referente.value = referido;
     dropdownVisible.value = false;
+    console.log("referidoo", referido)
 }
 
 function hideDropdown() {
@@ -125,7 +144,7 @@ function hideDropdown() {
                         <!-- Campo de búsqueda -->
                         <input type="text" class="form-control" :class="mostrarError ? 'label-error' : 'label'"
                             v-model="searchQuery" placeholder="Buscar persona..." @focus="dropdownVisible = true"
-                            @blur="hideDropdown" />
+                            @blur="hideDropdown" @input="searchQuery === '' ? dropdownVisible = true : ''" />
                         <div class="dropdown" v-show="dropdownVisible">
                             <div v-for="referido in filteredReferidos" :key="referido._id" class="dropdown-item"
                                 @mousedown.prevent="selectReferido(referido)">
@@ -162,6 +181,10 @@ form {
     border-radius: 5px;
 }
 
+.form-control {
+    border: 1px solid black;
+}
+
 .input {
     width: 100%;
     height: 45px;
@@ -188,40 +211,43 @@ form {
 }
 
 .boton-elegante {
-  padding: 5px 30px;
-  border: 2px solid #2c2c2c;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border-radius: 30px;
-  transition: all 0.3s ease;
-  outline: none;
-  position: relative;
-  overflow: hidden;
-  font-weight: bold;
+    padding: 5px 30px;
+    border: 2px solid #2c2c2c;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold;
 }
 
 .boton-elegante::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
-  transform: scale(0);
-  transition: transform 0.5s ease;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: scale(0);
+    transition: transform 0.5s ease;
 }
 
 .boton-elegante:hover::after {
-  transform: scale(2);
+    transform: scale(2);
 }
 
 .boton-elegante:hover {
-  border-color: #444444; /* Lighter border color for subtlety */
-  background-color: #000000; /* Slightly lighter black for a softer effect */
-  color: #e0e0e0; /* Softer white text color */
+    border-color: #444444;
+    /* Lighter border color for subtlety */
+    background-color: #000000;
+    /* Slightly lighter black for a softer effect */
+    color: #e0e0e0;
+    /* Softer white text color */
 }
 
 
@@ -250,30 +276,34 @@ form {
 }
 
 .input-group {
-  position: relative; /* Set the parent to relative positioning */
+    position: relative;
+    /* Set the parent to relative positioning */
 }
 
 .dropdown {
-  position: absolute; /* Position the dropdown absolutely relative to the parent */
-  top: 100%; /* Position it directly below the input field */
-  left: 0;
-  width: 100%;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  z-index: 10;
-  max-height: 150px;
-  overflow-y: auto;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15); /* Optional: Add some shadow for better visibility */
+    position: absolute;
+    /* Position the dropdown absolutely relative to the parent */
+    top: 100%;
+    /* Position it directly below the input field */
+    left: 0;
+    width: 100%;
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 10;
+    max-height: 150px;
+    overflow-y: auto;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+    /* Optional: Add some shadow for better visibility */
 }
 
 .dropdown-item {
-  padding: 10px;
-  cursor: pointer;
+    padding: 10px;
+    cursor: pointer;
 }
 
 .dropdown-item:hover {
-  background-color: #a7fa88;
+    background-color: #a7fa88;
 }
 
 

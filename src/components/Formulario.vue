@@ -224,7 +224,7 @@ function goToMensajeFinal() {
                     </option>
                 </select>
 
-                <label class=" label" for="visitoHotel">¿Ya visitó el hotel? <span class="text-danger">*</span></label>
+                <label class=" label" for="visitoHotel">¿Ha estado en nuestro hotel anteriormente? <span class="text-danger">*</span></label>
                 <select v-model="visitoHotel" class="form-select mb-4 input" id="inputGroupSelect04"
                     aria-label="Example select with button addon" :class="errores.visitoHotel ? 'input-border' : 'input'"
                     @change="mostrarCampoOpinion">
