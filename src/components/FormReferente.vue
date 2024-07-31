@@ -68,7 +68,7 @@ const agregarNuevoReferente = async () => {
 
         if (useReferentes.estatus === 200) {
             goToMsg();
-            console.log("Reseña añadida")
+            console.log("Referente añadido")
         } else if (useReferentes.estatus === 400) {
             return;
         }
@@ -97,20 +97,23 @@ onMounted(() => {
 // Computed property para las opciones filtradas
 const filteredReferidos = computed(() => {
     if (searchQuery.value === '') {
-        return referidos.value;
+        return referidos.value.filter(referido => referido._id !== idReferid.value);
     } else {
         const query = searchQuery.value.trim().toLowerCase();
-        return referidos.value.filter(referido =>
-            `${referido.nombre} ${referido.apellido}`.toLowerCase().includes(query)
-        );
+        return referidos.value
+            .filter(referido => referido._id !== idReferid.value)
+            .filter(referido =>
+                `${referido.nombre} ${referido.apellido}`.toLowerCase().includes(query)
+            );
     }
 });
+
 
 function selectReferido(referido) {
     searchQuery.value = `${referido.nombre} ${referido.apellido}`;
     referente.value = referido;
     dropdownVisible.value = false;
-    console.log("referidoo", referido)
+    console.log("referente: ", referido)
 }
 
 function hideDropdown() {
