@@ -33,7 +33,7 @@ const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { no
 
 
 
-async function getInfo() {
+/* async function getInfo() {
     try {
         const response = await useReferidos.getAll();
         console.log("hola soy referidos", response);
@@ -42,7 +42,7 @@ async function getInfo() {
     }
 };
 
-getInfo();
+getInfo(); */
 
 
 

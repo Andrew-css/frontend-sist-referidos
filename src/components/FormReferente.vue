@@ -146,8 +146,8 @@ function hideDropdown() {
                             v-model="searchQuery" placeholder="Buscar persona..." @focus="dropdownVisible = true"
                             @blur="hideDropdown" @input="searchQuery === '' ? dropdownVisible = true : ''" />
                         <div class="dropdown" v-show="dropdownVisible">
-                            <div v-for="referido in filteredReferidos" :key="referido._id" class="dropdown-item"
-                                @mousedown.prevent="selectReferido(referido)">
+                            <div v-for="referido in filteredReferidos" :key="referido._id" :value="referido" 
+                                class="dropdown-item" @mousedown.prevent="selectReferido(referido)">
                                 {{ referido.nombre }} {{ referido.apellido }}
                             </div>
                         </div>
