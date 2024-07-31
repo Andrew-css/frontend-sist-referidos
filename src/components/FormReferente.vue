@@ -17,14 +17,7 @@ const referente = ref("");
 const referidos = ref([]);
 const mensajeValidacion = ref("");
 const mostrarError = ref(false);
-const searchQuery = ref(""); onMounted(() => {
-    // Eliminar el referido creado anteriormente en el componente "Formulario Referido"
-    const index = referidos.value.findIndex(referido => referido._id === idReferid.value);
-    if (index !== -1) {
-        referidos.value.splice(index, 1);
-    }
-    idReferid.value = null; // Resetear la id del referido
-});
+const searchQuery = ref("");
 const dropdownVisible = ref(false);
 
 async function getInfoReferentes() {
@@ -99,14 +92,7 @@ function goToMsg() {
 onMounted(() => {
     getInfoReferidos();
     getInfoReferentes();
-
-    // Eliminar el referido creado anteriormente en el componente "Formulario Referido"
-    const index = referidos.value.findIndex(referido => referido._id === idReferid.value);
-    if (index !== -1) {
-        referidos.value.splice(index, 1);
-    }
-    idReferid.value = null; // Resetear la id del referido
-});
+})
 
 // Computed property para las opciones filtradas
 const filteredReferidos = computed(() => {
