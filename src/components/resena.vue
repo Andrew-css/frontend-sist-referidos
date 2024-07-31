@@ -287,6 +287,14 @@ async function descargarReferidos() {
   URL.revokeObjectURL(url);
 }
 
+function home() {
+  useUsuario.token = '';
+  useUsuario.usuario = '';
+  useUsuario.id = '';
+  router.push("/login")
+
+}
+
 onMounted(() => {
   getInfo();
   getInfoReferentes();
