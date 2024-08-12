@@ -74,6 +74,10 @@ function goToResena() {
     router.push('/resena')
 }
 
+function irRecuperarContra() {
+    router.push('/recuperar-contrasena')
+}
+
 </script>
 
 <template>
@@ -105,6 +109,8 @@ function goToResena() {
                         {{ msgButton }}
                     </button>
                 </div>
+                <p class="text-center text-primary text-decoration-underline" style="cursor: pointer;"
+                    @click="irRecuperarContra">Recuperar contraseña</p>
             </form>
         </div>
 

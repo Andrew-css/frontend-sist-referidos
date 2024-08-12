@@ -14,11 +14,41 @@ export const useStoreUsuarios = defineStore(
     const usuario = ref("");
     const email = ref("");
     const id = ref("");
+    const correoRecuperar = ref("");
     const router = useRouter();
 
     function insertarToken() {
       axios.defaults.headers.common["x-token"] = token.value;
     }
+
+    const codigoRecuperar = async (correo) => {
+      try {
+        const response = await axios.get(
+          `${modelo}/codigo-recuperar/${correo}`
+        );
+        console.log(response);
+        email.value = correo;
+        estatus.value = response.status
+        return response;
+      } catch (error) {
+        console.log(error);
+        estatus.value = error.response.status;
+        validacion.value = error.response.data.error;
+      }
+    };
+
+    const confirmarCodigo = async (codigo) => {
+      try {
+        const response = await axios.get(
+          `${modelo}/confirmar-codigo/${codigo}`
+        );
+        console.log(response);
+        return response;
+      } catch (error) {
+        console.log(error);
+        validacion.value = error.response.data.error;
+      }
+    };
 
     const login = async (data) => {
       try {
@@ -67,6 +97,18 @@ export const useStoreUsuarios = defineStore(
       }
     };
 
+    const nuevaPassword = async (data) => {
+      try {
+        const response = await axios.put(`${modelo}/nueva-password`, data);
+        console.log(response);
+
+        return response;
+      } catch (error) {
+        console.log(error);
+        validacion.value = error.response.data.error;
+      }
+    };
+
     const agregar = async (data) => {
       try {
         insertarToken();
@@ -104,8 +146,12 @@ export const useStoreUsuarios = defineStore(
       id,
       email,
       usuario,
+      correoRecuperar,
       validacion,
       estatus,
+      codigoRecuperar,
+      confirmarCodigo,
+      nuevaPassword,
     };
   },
   {

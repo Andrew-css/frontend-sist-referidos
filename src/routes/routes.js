@@ -4,6 +4,7 @@ import FormularioReferente from "../components/FormReferente.vue";
 import Login from "../components/Login.vue";
 import Resenas from "../components/resena.vue";
 import MensajeFinal from "../components/MensajeFinal.vue";
+import recuperarContra from "../components/RecuperarContrasena.vue";
 import { useStoreUsuarios } from "../stores/usuario.js";
 
 const checkAuth = () => {
@@ -27,6 +28,7 @@ const auth = (to, from, next) => {
 const routes = [
   { path: "/", component: Formulario },
   { path: "/formref", component: FormularioReferente },
+  { path: "/recuperar-contrasena", component: recuperarContra },
   { path: "/resena", beforeEnter: auth, component: Resenas },
   { path: "/msg", component: MensajeFinal },
   { path: "/login", component: Login },
