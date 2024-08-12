@@ -65,12 +65,12 @@ function home() {
 
 <template>
   <main class="container-fluid">
-    <div class="row justify-content-start align-items-center my-3">
+    <div class="row justify-content-start align-items-center my-3" id="primero">
       <div class="col-auto">
         <img :src="logoHere" alt="Logo Empresa" @click="home" style="cursor: pointer; max-width: 160px;" />
       </div>
       <div class="col-auto">
-        <p class="mb-0 fs-3 fw-bold">Nombre empresa</p>
+        <p class="mb-0 fs-3 fw-bold text-center">Nombre Empresa</p>
       </div>
     </div>
     <section v-if="!componenteVerificar" >
@@ -160,6 +160,12 @@ function home() {
 
 /* Responsivo */
 @media screen and (max-width: 768px) {
+
+  #primero{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
   .company-name {
     font-size: 16px;
   }
