@@ -8,6 +8,7 @@ import logoHere from "../assets/logo.png";
 const router = useRouter();
 const useUsuario = useStoreUsuarios();
 const loadingCorreo = ref(false);
+const msgButton = ref("Recuperar contraseña");
 const validacion = ref("");
 const email = ref("");
 const componenteVerificar = ref(false);
@@ -22,7 +23,7 @@ function validarCorreo() {
     validacion.value = "Por favor ingrese un correo electrónico válido";
     setTimeout(() => {
       validacion.value = '';
-    }, 3000);
+    }, 4000);
     return false;
   }
   return true;
@@ -37,16 +38,17 @@ function validarCampo() {
 
 async function enviarCodigo() {
   loadingCorreo.value = true;
+  msgButton.value = "";
   try {
     const response = await useUsuario.codigoRecuperar(email.value);
     console.log(response);
-    loadingCorreo.value = false;
+
 
     if (useUsuario.estatus === 400) {
       validacion.value = useUsuario.validacion;
       setTimeout(() => {
         validacion.value = '';
-      }, 3000);
+      }, 4000);
     } else if (useUsuario.estatus === 200) {
       useUsuario.correoRecuperar = email.value;
       componenteVerificar.value = true;
@@ -55,6 +57,9 @@ async function enviarCodigo() {
     }
   } catch (error) {
     console.log(error);
+  } finally {
+    loadingCorreo.value = false;
+    msgButton.value = "Recuperar contraseña";
   }
 }
 
@@ -73,7 +78,7 @@ function home() {
         <p class="mb-0 fs-3 fw-bold text-center">Nombre Empresa</p>
       </div>
     </div>
-    <section v-if="!componenteVerificar" >
+    <section v-if="!componenteVerificar">
       <div class="card col-12 col-md-8 col-lg-6 text-center">
         <div class="card-body">
           <h2 class="card-title">Recuperar contraseña</h2>
@@ -83,7 +88,12 @@ function home() {
               <input type="text" class="form-control" v-model="email" placeholder="Ej: correo@gmail.com" />
               <p class="text-danger text-center">{{ validacion }}</p>
             </div>
-            <button type="submit" class="btn btn-primary" :loading="loadingCorreo">Recuperar contraseña</button>
+            <button value="Ingresar" type="submit" class="btn btn-primary">
+              <div v-if="loadingCorreo">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </div>
+              {{ msgButton }}
+            </button>
           </form>
         </div>
       </div>
@@ -161,11 +171,12 @@ function home() {
 /* Responsivo */
 @media screen and (max-width: 768px) {
 
-  #primero{
+  #primero {
     display: flex;
     flex-direction: column;
     justify-content: center;
   }
+
   .company-name {
     font-size: 16px;
   }

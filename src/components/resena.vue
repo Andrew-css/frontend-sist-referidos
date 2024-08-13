@@ -319,12 +319,12 @@ onMounted(() => {
           <ul class="navbar-nav ms-auto gap-3" id="listaBotones">
             <li class="nav-item">
               <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferidos">
-                Buscar embajador
+                Ver embajador
               </button>
             </li>
             <li class="nav-item">
               <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
-                Buscar referente
+                Buscar embajador
               </button>
             </li>
             <li class="nav-item">
@@ -390,7 +390,7 @@ onMounted(() => {
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalBuscarReferidosLabel">Buscar referidos</h5>
+              <h5 class="modal-title" id="modalBuscarReferidosLabel">Buscar información del embajador</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="width: 100%;">
@@ -411,7 +411,7 @@ onMounted(() => {
                   </div>
                   <h4 class="text-danger text-center fw-bold">{{ msgNoReferido }}</h4>
                   <div class="row justify-content-center" v-if="mostrarReferidos">
-                    <h1 class="mb-3">Embajador</h1>
+                    <h3 class="mb-3">Embajador</h3>
                     <table class="mb-4">
                       <tr>
                         <th>Nombre</th>
@@ -445,7 +445,7 @@ onMounted(() => {
 
                     <!-- Tabla de niveles -->
                     <div v-if="mostrarNiveles" class="mt-3">
-                      <h2 class="mb-3">Niveles Embajador</h2>
+                      <h3 class="mb-3">Niveles Embajador</h3>
                       <table class="table table-bordered">
                         <thead>
                           <tr>
@@ -506,7 +506,7 @@ onMounted(() => {
                       {{ msgNivelReferente }}
                     </p>
                     <hr class="my-3">
-                    <h1 class="mb-3">Lista de referidos</h1>
+                    <h3 class="mb-3">Lista de referidos</h3>
 
                     <!-- Mostrar referidos de la cédula digitada -->
                     <table>
@@ -539,12 +539,12 @@ onMounted(() => {
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalBuscarReferentesLabel">Buscar referente</h5>
+              <h5 class="modal-title" id="modalBuscarReferentesLabel">Buscar embajador</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="width: 100%;">
               <!-- Input para buscar por cédula -->
-              <p>Digite la cédula del referido para buscar su referente</p>
+              <p>Digite la cédula del referido para buscar su embajador</p>
               <input type="number" class="form-control" v-model="cedulaReferido"
                 placeholder="Ingrese la cédula del referido">
               <div class="container text-center">
@@ -562,7 +562,7 @@ onMounted(() => {
                 <h4 class="text-danger text-center fw-bold mt-3">{{ validacion }}</h4>
 
                 <div class="row justify-content-center" v-if="mostrarReferentes">
-                  <h1 class="mb-4">Referido</h1>
+                  <h3 class="mb-4">Referido</h3>
                   <table class="mb-4">
                     <tr>
                       <th>Nombre</th>
@@ -579,7 +579,7 @@ onMounted(() => {
                   </table>
 
                   <hr class="my-3">
-                  <h1>Referente</h1>
+                  <h3>Embajador</h3>
                 </div>
               </div>
             </div>

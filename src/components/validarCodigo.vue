@@ -5,32 +5,46 @@ import { useRouter } from 'vue-router';
 import NuevaPassword from "./nuevaContraseña.vue";
 
 const router = useRouter();
-
-// Verificar el código
 const codigo = ref("");
 const useUsuario = useStoreUsuarios();
+const email = useUsuario.email;
+const validacion = ref("");
 const componenteNuevaPass = ref(false);
 const loadVerificar = ref(false);
+const msgButton = ref("Enviar");
 
 async function confirmarCodigo() {
   try {
     loadVerificar.value = true;
+    msgButton.value = "";
     const response = await useUsuario.confirmarCodigo(codigo.value);
 
-    if (!response) return;
-    
-    componenteNuevaPass.value = true;
+    if (useUsuario.estatus === 200) {
+      componenteNuevaPass.value = true;
+    } else if (useUsuario.estatus == 400) {
+      validacion.value = useUsuario.validacion
+      setTimeout(() => {
+        validacion.value = '';
+      }, 4000);
+      return;
+    } else {
+      return;
+    }
   } catch (error) {
     console.log(error);
   } finally {
     loadVerificar.value = false;
+    msgButton.value = "Enviar";
   }
 }
 
 // Validaciones
 function validarCampos() {
   if (codigo.value === null || codigo.value === "") {
-    console.log("Por favor complete todos los campos")
+    validacion.value = "Por favor complete todos los campos"
+    setTimeout(() => {
+        validacion.value = '';
+      }, 4000);
     return;
   }
   confirmarCodigo();
@@ -47,12 +61,18 @@ function home() {
       <div class="card col-12 col-md-8 col-lg-6 text-center">
         <div class="card-body">
           <h2 class="card-title">Verificar código</h2>
-          <p class="card-text">Por favor, digite el código de verificación enviado a {{ useUsuario.email }}</p>
+          <p class="card-text">Por favor, digite el código de verificación enviado a {{ email }}</p>
           <form @submit.prevent="validarCampos">
             <div class="form-group">
               <input type="number" id="codigo" class="form-control" v-model="codigo" />
+              <p class="text-danger text-center">{{ validacion }}</p>
             </div>
-            <button type="submit" class="btn btn-primary" :disabled="loadVerificar">Enviar</button>
+            <button value="Ingresar" type="submit" class="btn btn-primary">
+              <div v-if="loadVerificar">
+                <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+              </div>
+              {{ msgButton }}
+            </button>
           </form>
         </div>
       </div>

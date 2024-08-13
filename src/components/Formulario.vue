@@ -13,9 +13,11 @@ const telefono = ref("");
 const opinion = ref("");
 const metodo = ref("");
 const useReferidos = useStoreReferido();
+const msgButton = ref("Enviar");
 const validacion = ref("");
 const showModal = ref(false);
 const bordeInput = ref(false);
+const loadEnviar = ref(false);
 const errores = ref({
     nombre: false,
     apellido: false,
@@ -28,7 +30,7 @@ const errores = ref({
 const visitoHotel = ref("");
 const mostrarOpinion = ref(false);
 const selectedMethod = ref("");
-const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Cliente antiguo" } , { nombre: "Otro" }]);
+const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Cliente antiguo" }, { nombre: "Otro" }]);
 
 
 
@@ -91,6 +93,8 @@ const agregarNuevoReferido = async () => {
         showModal.value = true;
         selectedMethod.value = metodo.value;
     } else {
+        loadEnviar.value = true;
+        msgButton.value = '';
         // Enviar formulario directamente si se seleccionó "Referido"
         const data = {
             nombre: nombre.value,
@@ -106,20 +110,28 @@ const agregarNuevoReferido = async () => {
             const response = await useReferidos.agregar(data);
 
             if (useReferidos.estatus === 200) {
+                loadEnviar.value = false;
+                msgButton.value = "Enviar";
                 goToFormReferente();
             } else if (useReferidos.estatus === 400) {
                 validacion.value = useReferidos.validacion;
+                loadEnviar.value = false;
+                msgButton.value = "Enviar";
                 return;
             }
 
         } catch (error) {
             console.log('Error al agregar  referido:', error);
+            loadEnviar.value = false;
+            msgButton.value = "Enviar";
         }
     }
 }
 
 const confirmMethod = async () => {
     showModal.value = false;
+    loadEnviar.value = true;
+    msgButton.value = "";
     // Enviar formulario con los datos seleccionados
     const data = {
         nombre: nombre.value,
@@ -135,13 +147,19 @@ const confirmMethod = async () => {
         const response = await useReferidos.agregar(data);
 
         if (useReferidos.estatus === 200) {
+            loadEnviar.value = false;
+            msgButton.value = "Enviar";
             goToMensajeFinal();
         } else if (useReferidos.estatus === 400) {
+            loadEnviar.value = false;
+            msgButton.value = "Enviar";
             validacion.value = useReferidos.validacion;
             return;
         }
     } catch (error) {
         console.log('Error al agregar  referido:', error);
+        loadEnviar.value = false;
+        msgButton.value = "Enviar";
     }
 }
 
@@ -224,7 +242,8 @@ function goToMensajeFinal() {
                     </option>
                 </select>
 
-                <label class=" label" for="visitoHotel">¿Ha estado en nuestro hotel anteriormente? <span class="text-danger">*</span></label>
+                <label class=" label" for="visitoHotel">¿Ha estado en nuestro hotel anteriormente? <span
+                        class="text-danger">*</span></label>
                 <select v-model="visitoHotel" class="form-select mb-4 input" id="inputGroupSelect04"
                     aria-label="Example select with button addon" :class="errores.visitoHotel ? 'input-border' : 'input'"
                     @change="mostrarCampoOpinion">
@@ -239,13 +258,18 @@ function goToMensajeFinal() {
                         style="height: 70px;"></textarea><br><br>
                 </div>
                 <p class="text-danger" style="font-size: 10px;">* campo obligatorio</p>
-                <input type="submit" value="Enviar" class="boton-elegante">
+                <button type="submit" class="boton-elegante" :disabled="loadEnviar">
+                    <div v-if="loadEnviar">
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                    </div>
+                    {{ msgButton }}
+                </button>
 
                 <h6 class="text-danger text-center fw-bold mt-3">{{ validacion }}</h6>
             </form>
 
 
-            <div v-if="showModal" class="modal">
+            <div v-if="showModal" class="modal text-center">
                 <div class="modal-content">
                     <h2>Confirmar método</h2>
                     <p>Estás seguro que deseas seleccionar {{ selectedMethod }}?</p>
@@ -317,40 +341,43 @@ textarea {
 }
 
 .boton-elegante {
-  padding: 5px 30px;
-  border: 2px solid #2c2c2c;
-  background-color: #1a1a1a;
-  color: #ffffff;
-  font-size: 1.2rem;
-  cursor: pointer;
-  border-radius: 30px;
-  transition: all 0.3s ease;
-  outline: none;
-  position: relative;
-  overflow: hidden;
-  font-weight: bold;
+    padding: 5px 30px;
+    border: 2px solid #2c2c2c;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    font-size: 1.2rem;
+    cursor: pointer;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    outline: none;
+    position: relative;
+    overflow: hidden;
+    font-weight: bold;
 }
 
 .boton-elegante::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
-  transform: scale(0);
-  transition: transform 0.5s ease;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 70%);
+    transform: scale(0);
+    transition: transform 0.5s ease;
 }
 
 .boton-elegante:hover::after {
-  transform: scale(2);
+    transform: scale(2);
 }
 
 .boton-elegante:hover {
-  border-color: #444444; /* Lighter border color for subtlety */
-  background-color: #000000; /* Slightly lighter black for a softer effect */
-  color: #e0e0e0; /* Softer white text color */
+    border-color: #444444;
+    /* Lighter border color for subtlety */
+    background-color: #000000;
+    /* Slightly lighter black for a softer effect */
+    color: #e0e0e0;
+    /* Softer white text color */
 }
 
 .modal {

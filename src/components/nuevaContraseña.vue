@@ -3,215 +3,290 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import { useStoreUsuarios } from "../stores/usuario.js";
 
-
 const router = useRouter();
-const isPwVisible = ref(false);
-const isCheckPwVisible = ref(false);
+const useUsuario = useStoreUsuarios();
 const showOne = ref(true);
 const showTwo = ref(false);
 
-//Enviar nueva contraseña
-const data = ref({ password: "" });
+// Enviar nueva contraseña
+const data = ref({
+  correo: useUsuario.email,
+  codigo: useUsuario.codigoCorreo,
+  password: ""
+});
 const checkPassword = ref("");
-const useUsuario = useStoreUsuarios();
+const validacion = ref("");
+const showPasswordError = ref(false);
+const showConfirmPasswordError = ref(false);
+const msgButton = ref("Cambiar contraseña");
 const loadNuevaPass = ref(false);
 
 async function nuevaPassword() {
   try {
     loadNuevaPass.value = true;
+    msgButton.value = "";
 
+    console.log(data.value)
     const response = await useUsuario.nuevaPassword(data.value);
 
     if (!response) return;
 
-    if (response.status != 200) {
-      console.log(response.error);
-      return;
+    if (useUsuario.estatus == 200) {
+      showOne.value = false;
+      showTwo.value = true;
+    } else if (useUsuario.estatus === 400) {
+      validacion.value = useUsuario.validacion;
     }
-    console.log("Contraseña actulizada con éxito");
   } catch (error) {
     console.log(error);
   } finally {
     loadNuevaPass.value = false;
-    showOne.value = false;
-    showTwo.value = true;
+    msgButton.value = "Cambiar contraseña";
   }
 }
 
 // Validaciones
-const vali = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
-function validarCampos() {
-  data.value = {
-    ...data.value,
-  };
+const vali = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[@#$%^&+=!]).{8,}$/;
 
-  const arrData = Object.entries(data.value);
-  for (const d of arrData) {
-    if (d[1] === null) {
-      console.log("Por favor complete todos los campos");
-      return;
-    }
-    if (typeof d[1] === "string") {
-      if (d[1].trim() === "") {
-        console.log("Por favor complete todos los campos");
-        return;
-      }
-    }
+
+function validarCampos() {
+  showPasswordError.value = !vali.test(data.value.password);
+  showConfirmPasswordError.value = checkPassword.value !== data.value.password;
+
+  if (!showPasswordError.value && !showConfirmPasswordError.value) {
+    nuevaPassword();
   }
-  nuevaPassword();
 }
 
+
+
+const tipoContrasena = ref("password");
+const iconoContrasena = ref("fa fa-eye-slash");
+
+function ocultarContrasena() {
+  if (tipoContrasena.value === "password") {
+    tipoContrasena.value = "text";
+    iconoContrasena.value = "fa fa-eye";
+  } else {
+    tipoContrasena.value = "password";
+    iconoContrasena.value = "fa fa-eye-slash";
+  }
+}
+
+
 function home() {
-  router.push('/login')
+  router.push('/login');
 }
 </script>
 
 <template>
-    <main>
-      <section class="container" v-if="showOne">
-        <div class="row justify-content-center">
-          <div class="col-md-6">
-            <img :src="logoSena" alt="" @click="home" style="max-width: 145px; cursor: pointer;">
+  <main>
+    <section class="container" v-if="showOne">
+      <form class="form" @submit.prevent="validarCampos">
+        <div class="form-group">
+          <label for="password">Por favor, ingrese la nueva contraseña</label>
+          <div class="input-wrapper">
+            <input :type="tipoContrasena" id="password" class="form-control" v-model="data.password" />
+            <i :class="iconoContrasena" @click="ocultarContrasena" class="toggle-password"></i>
           </div>
-        </div>
-        <form class="form" @submit.prevent="validarCampos">
-          <div class="form-group">
-            <label for="password">Por favor, ingrese la nueva contraseña</label>
-            <input type="password" id="password" class="form-control" v-model="data.password" />
-            <div class="invalid-feedback" v-if="!vali.test(data.password)">La contraseña debe contener una minúscula, una mayúscula, un número, un carácter especial y 8 carácteres.</div>
-  
-            <label for="confirm-password">Confirmar Contraseña</label>
-            <input type="password" id="confirm-password" class="form-control" v-model="checkPassword" />
-            <div class="invalid-feedback" v-if="checkPassword !== data.password">Las contraseñas no coinciden</div>
-  
-            <button type="submit" class="btn btn-primary" :disabled="loadNuevaPass">Cambiar Contraseña</button>
+          <p class="text-danger text-center" v-if="showPasswordError">
+            La contraseña debe contener una minúscula, una mayúscula, un número, un
+            carácter especial y 8 caracteres como mínimo.
+          </p>
+
+          <label for="confirm-password">Confirmar Contraseña</label>
+          <div class="input-wrapper">
+            <input :type="tipoContrasena" id="confirm-password" class="form-control" v-model="checkPassword" />
+            <i :class="iconoContrasena" @click="ocultarContrasena" class="toggle-password"></i>
           </div>
-        </form>
-      </section>
-  
-      <section v-if="showTwo" id="second">
-        <div class="row justify-content-center">
-          <div class="col-md-6">
-            <img :src="logoSena" alt="" style="max-width: 145px;">
-          </div>
-        </div>
-        <article id="stext">
-          <div id="stext11">
-            <p id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
-            <div id="stext2">
-              <p id="smessage2">Ahora puede ingresar al sistema</p>
-              <button type="submit" class="btn btn-primary" @click="router.push('/')">Ir al inicio</button>
+          <p class="text-danger text-center" v-if="showConfirmPasswordError">
+            Las contraseñas no coinciden
+          </p>
+          <p class="text-danger text-center">{{ validacion }}</p>
+          <button type="submit" class="btn btn-primary" :disabled="loadNuevaPass">
+            <div v-if="loadNuevaPass">
+              <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
             </div>
+            {{ msgButton }}
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section v-if="showTwo" id="second">
+      <article id="stext">
+        <div id="stext11">
+          <p id="smessage">¡La contraseña ha sido cambiada exitosamente!</p>
+          <div id="stext2">
+            <p id="smessage2">Ahora puede ingresar al sistema</p>
+            <button type="submit" class="btn btn-primary" @click="home">Ir al inicio</button>
           </div>
-        </article>
-      </section>
-    </main>
-  </template>
-  
-  <style scoped>
+        </div>
+      </article>
+    </section>
+  </main>
+</template>
+
+
+<style scoped>
+.input-wrapper {
+  position: relative;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.form-control {
+  width: 100%;
+  padding-right: 40px;
+  /* Espacio para el icono */
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #f5f5f5;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.input-group {
+  position: relative;
+}
+
+.input-group-text {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+}
+
+.form-control {
+  width: 100%;
+  font-size: 16px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.form-control:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.btn {
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #337ab7;
+  cursor: pointer;
+  width: 100%;
+}
+
+.btn:hover {
+  background-color: #23527c;
+}
+
+.btn:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+#second {
+  width: 100%;
+  height: 100vh;
+}
+
+#stext {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+#stext11 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f5f5f5;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 40%;
+  padding: 25px;
+  min-height: 40vh;
+  gap: 20px;
+}
+
+#smessage {
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+#smessage2 {
+  font-size: 16px;
+}
+
+#stext2 {
+  width: 100%;
+  text-align: center;
+}
+
+/* Responsivo */
+@media screen and (max-width: 768px) {
   .container {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
-    background-color: #f5f5f5;
-    border-radius: 20px;
-    box-shadow: 25px 20px 5px #888888;
+    width: 90%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   }
-  
-  .form-group {
-    margin-bottom: 20px;
-  }
-  
-  .form-control {
-    width: 100%;
-    font-size: 130%;
-  }
-  
-  .btn {
-    color: white;
-    font-weight: bolder;
-    font-size: 1.3rem;
-    border-radius: 25px;
-    cursor: pointer;
-    width: 100%;
-  }
-  
-  #second {
-    width: 100%;
-    height: 100vh;
-  }
-  
-  #stext {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    width: 100%;
-    min-height: 100vh;
-  }
-  
+
   #stext11 {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #f5f5f5;
-    box-shadow: 25px 20px 5px #888888;
-    width: 40%;
-    padding: 25px;
-    min-height: 40vh;
-    gap: 50px;
+    width: 70%;
   }
-  
+
   #smessage {
-    text-align: center;
-    font-size: 315%;
-    font-weight: bolder;
+    font-size: 20px;
   }
-  
+
   #smessage2 {
-    font-size: 150%;
+    font-size: 14px;
   }
-  
-  #stext2 {
-    width: 50%;
-    text-align: center;
+}
+
+@media screen and (max-width: 480px) {
+  .container {
+    width: 100%;
+    box-shadow: none;
   }
-  
-  @media screen and (max-width: 900px) and (min-width: 550px) {
-    .form-group {
-      width: 55%;
-    }
-  
-    #stext11 {
-      width: 70%;
-      padding: 30px;
-    }
+
+  #stext11 {
+    width: 90%;
+    box-shadow: none;
   }
-  
-  @media screen and (max-width: 549px) and (min-width: 100px) {
-    .form-group {
-      width: 80%;
-      box-shadow: none;
-    }
-  
-    .logo{
-      display: flex;
-      justify-content: center;
-    }
-  
-    #stext11 {
-      width: 70%;
-      padding-top: 30px;
-      box-shadow: none;
-    }
-  
-    #smessage {
-      font-size: 250%;
-    }
-  
-    #sbuttonpassword {
-      width: 100%;
-    }
+
+  #smessage {
+    font-size: 18px;
   }
-  </style>
+
+  #smessage2 {
+    font-size: 12px;
+  }
+}
+</style>
+

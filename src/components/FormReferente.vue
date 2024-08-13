@@ -19,6 +19,9 @@ const mensajeValidacion = ref("");
 const mostrarError = ref(false);
 const searchQuery = ref("");
 const dropdownVisible = ref(false);
+const loadEnviar = ref(false);
+const loadingReferidos = ref(false);
+const msgButton = ref("Enviar")
 
 async function getInfoReferentes() {
     try {
@@ -30,6 +33,7 @@ async function getInfoReferentes() {
 };
 
 async function getInfoReferidos() {
+    loadingReferidos.value = true;
     try {
         const response = await useReferidos.getAll();
         response.sort((a, b) => {
@@ -41,8 +45,10 @@ async function getInfoReferidos() {
         console.log("hola soy referidos", response);
     } catch (error) {
         console.log(error);
+    } finally {
+        loadingReferidos.value = false;
     }
-};
+}
 
 const agregarNuevoReferente = async () => {
     if (!referente.value) {
@@ -53,6 +59,9 @@ const agregarNuevoReferente = async () => {
             mensajeValidacion.value = "";
         }, 3500);
     }
+
+    loadEnviar.value = true;
+    msgButton.value = "";
 
     const data = {
         nombre: nombre.value,
@@ -67,13 +76,19 @@ const agregarNuevoReferente = async () => {
         const response = await useReferentes.agregar(data);
 
         if (useReferentes.estatus === 200) {
+            loadEnviar.value = false;
+            msgButton.value = "Enviar";
             goToMsg();
             console.log("Referente añadido")
         } else if (useReferentes.estatus === 400) {
+            loadEnviar.value = false;
+            msgButton.value = "Enviar";
             return;
         }
     } catch (error) {
         console.log('Error al agregar referido:', error);
+        loadEnviar.value = false;
+        msgButton.value = "Enviar";
     }
 };
 
@@ -94,7 +109,7 @@ onMounted(() => {
     getInfoReferentes();
 })
 
-// Computed property para las opciones filtradas
+// Filtrar lista referidos
 const filteredReferidos = computed(() => {
     if (searchQuery.value === '') {
         return referidos.value.filter(referido => referido._id !== idReferid.value);
@@ -130,12 +145,18 @@ function hideDropdown() {
                 <p class="text-center fw-bold fs-5">Por favor seleccione la persona que le recomendó nuestro servicio</p>
                 <div class="container text-center mb-3">
                     <div class="input-group mt-4">
-                        <!-- Campo de búsqueda -->
-                        <input type="text" class="form-control" :class="mostrarError ? 'label-error' : 'label'"
+                        <!-- Mostrar indicador de carga mientras se obtienen los referidos -->
+                        <div v-if="loadingReferidos" class="spinner-container" >
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Cargando...
+                        </div>
+
+                        <!-- Campo de búsqueda que se muestra después de que se han cargado los referidos -->
+                        <input v-else type="text" class="form-control" :class="mostrarError ? 'label-error' : 'label'"
                             v-model="searchQuery" placeholder="Buscar persona..." @focus="dropdownVisible = true"
                             @blur="hideDropdown" @input="searchQuery === '' ? dropdownVisible = true : ''" />
                         <div class="dropdown" v-show="dropdownVisible">
-                            <div v-for="referido in filteredReferidos" :key="referido._id" :value="referido" 
+                            <div v-for="referido in filteredReferidos" :key="referido._id" :value="referido"
                                 class="dropdown-item" @mousedown.prevent="selectReferido(referido)">
                                 {{ referido.nombre }} {{ referido.apellido }}
                             </div>
@@ -143,7 +164,12 @@ function hideDropdown() {
                     </div>
                 </div>
                 <div style="width: 100%; display: flex; justify-content: center;">
-                    <input type="submit" value="Enviar" class="boton-elegante">
+                    <button type="submit" class="boton-elegante" :disabled="loadEnviar">
+                        <div v-if="loadEnviar">
+                            <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        </div>
+                        {{ msgButton }}
+                    </button>
                 </div>
                 <h6 class="text-danger text-center fw-bold mt-3">{{ mensajeValidacion }}</h6>
             </form>
@@ -169,6 +195,21 @@ form {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 5px;
 }
+
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: black;
+    width: 100%;
+}
+
+.spinner-container .spinner-border {
+    margin-right: 10px;
+}
+
 
 .form-control {
     border: 1px solid black;
@@ -232,11 +273,8 @@ form {
 
 .boton-elegante:hover {
     border-color: #444444;
-    /* Lighter border color for subtlety */
     background-color: #000000;
-    /* Slightly lighter black for a softer effect */
     color: #e0e0e0;
-    /* Softer white text color */
 }
 
 
@@ -266,14 +304,11 @@ form {
 
 .input-group {
     position: relative;
-    /* Set the parent to relative positioning */
 }
 
 .dropdown {
     position: absolute;
-    /* Position the dropdown absolutely relative to the parent */
     top: 100%;
-    /* Position it directly below the input field */
     left: 0;
     width: 100%;
     background: white;
@@ -283,7 +318,6 @@ form {
     max-height: 150px;
     overflow-y: auto;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
-    /* Optional: Add some shadow for better visibility */
 }
 
 .dropdown-item {
