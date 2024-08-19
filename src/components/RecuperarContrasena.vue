@@ -41,7 +41,6 @@ async function enviarCodigo() {
   msgButton.value = "";
   try {
     const response = await useUsuario.codigoRecuperar(email.value);
-    console.log(response);
 
 
     if (useUsuario.estatus === 400) {

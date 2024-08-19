@@ -27,7 +27,6 @@ export const useStoreUsuarios = defineStore(
         const response = await axios.get(
           `${modelo}/codigo-recuperar/${correo}`
         );
-        console.log(response);
         email.value = correo;
         estatus.value = response.status
         return response;
@@ -43,7 +42,6 @@ export const useStoreUsuarios = defineStore(
         const response = await axios.get(
           `${modelo}/confirmar-codigo/${codigo}`
         );
-        console.log(response);
         estatus.value = response.status;
         codigoCorreo.value = codigo;
         return response;
@@ -57,8 +55,6 @@ export const useStoreUsuarios = defineStore(
     const login = async (data) => {
       try {
         const response = await axios.post(`${modelo}/login`, data);
-        console.log("Hola soy login", response);
-
         token.value = response.data.token;
         usuario.value = response.data.usuario;
         id.value = response.data.usuario._id;
@@ -68,7 +64,6 @@ export const useStoreUsuarios = defineStore(
         console.log(error);
         estatus.value = error.response.status;
         validacion.value = error.response.data.error;
-        console.log("validar", validacion);
       }
     };
 
@@ -76,7 +71,6 @@ export const useStoreUsuarios = defineStore(
       try {
         insertarToken();
         const response = await axios.put(`${modelo}/editar/${id}`, data);
-        console.log(response);
         estatus.value = response.status;
         return response.data;
       } catch (error) {
@@ -104,7 +98,6 @@ export const useStoreUsuarios = defineStore(
     const nuevaPassword = async (data) => {
       try {
         const response = await axios.put(`${modelo}/nueva-password`, data);
-        console.log(response);
         estatus.value = response.status;
         return response;
       } catch (error) {
@@ -119,7 +112,6 @@ export const useStoreUsuarios = defineStore(
       try {
         insertarToken();
         const response = await axios.post(`${modelo}/registro`, data);
-        console.log(response);
         estatus.value = response.status;
         return response.data;
       } catch (error) {

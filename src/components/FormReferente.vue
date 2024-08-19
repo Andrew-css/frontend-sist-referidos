@@ -26,7 +26,6 @@ const msgButton = ref("Enviar")
 async function getInfoReferentes() {
     try {
         const response = await useReferentes.getAll();
-        console.log("hola soy referentes", response);
     } catch (error) {
         console.log(error);
     }
@@ -42,7 +41,6 @@ async function getInfoReferidos() {
             return 0;
         });
         referidos.value = response;
-        console.log("hola soy referidos", response);
     } catch (error) {
         console.log(error);
     } finally {
@@ -79,14 +77,13 @@ const agregarNuevoReferente = async () => {
             loadEnviar.value = false;
             msgButton.value = "Enviar";
             goToMsg();
-            console.log("Referente añadido")
         } else if (useReferentes.estatus === 400) {
             loadEnviar.value = false;
             msgButton.value = "Enviar";
             return;
         }
     } catch (error) {
-        console.log('Error al agregar referido:', error);
+        console.log(error);
         loadEnviar.value = false;
         msgButton.value = "Enviar";
     }
@@ -128,7 +125,6 @@ function selectReferido(referido) {
     searchQuery.value = `${referido.nombre} ${referido.apellido}`;
     referente.value = referido;
     dropdownVisible.value = false;
-    console.log("referente: ", referido)
 }
 
 function hideDropdown() {

@@ -30,22 +30,7 @@ const errores = ref({
 const visitoHotel = ref("");
 const mostrarOpinion = ref(false);
 const selectedMethod = ref("");
-const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" }, { nombre: "Cliente antiguo" }, { nombre: "Otro" }]);
-
-
-
-
-/* async function getInfo() {
-    try {
-        const response = await useReferidos.getAll();
-        console.log("hola soy referidos", response);
-    } catch (error) {
-        console.log(error);
-    }
-};
-
-getInfo(); */
-
+const opciones = ref([{ nombre: "Referido" }, { nombre: "Redes sociales" },  { nombre: "Otro" }]);
 
 
 
@@ -185,6 +170,7 @@ const mostrarCampoOpinion = () => {
     if (visitoHotel.value === 'Si') {
         mostrarOpinion.value = true;
     } else {
+        opinion.value = "Primera visita"
         mostrarOpinion.value = false;
     }
 }
@@ -242,7 +228,7 @@ function goToMensajeFinal() {
                     </option>
                 </select>
 
-                <label class=" label" for="visitoHotel">¿Ha estado en nuestro hotel anteriormente? <span
+                <label class=" label" for="visitoHotel">¿Ha visitado nuestro establecimiento anteriormente? <span
                         class="text-danger">*</span></label>
                 <select v-model="visitoHotel" class="form-select mb-4 input" id="inputGroupSelect04"
                     aria-label="Example select with button addon" :class="errores.visitoHotel ? 'input-border' : 'input'"

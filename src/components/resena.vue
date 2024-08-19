@@ -18,6 +18,7 @@ const router = useRouter();
 const searchQuery = ref("");
 const validacion = ref("");
 const referentes = ref("");
+const referidos = ref("");
 const nombreReferente = ref("");
 const apellidoReferente = ref("");
 const cedulaReferente = ref("");
@@ -44,22 +45,25 @@ const msgAsignarButton = ref("Asignar Nivel");
 const msgNivelReferente = ref("");
 const nivelesReferente = ref([]); // Datos de niveles
 const nivelSeleccionado = ref(null); // Nivel seleccionado
-const mostrarConfirmacion = ref(false); // Nuevo estado para mostrar la confirmación
+const mostrarConfirmacion = ref(false); // Nuevo estado para mostrar la confirmación}
+const isLoading = ref(true);
 
 
 async function getInfo() {
   try {
     const response = await useReferidos.getAll();
-    console.log("hola soy referidos", response);
+    referidos.value = response;
   } catch (error) {
     console.log(error);
+  } finally {
+    isLoading.value = false;
   }
+
 }
 
 async function getInfoReferentes() {
   try {
     const response = await useReferentes.getAll();
-    console.log("hola soy referentes", response);
   } catch (error) {
     console.log(error);
   }
@@ -73,14 +77,13 @@ async function getInfoNivelReferente() {
     nivelesReferente.value = response; // Guarda los niveles obtenidos
     loadNivel.value = false;
     msgAsignarButton.value = "Asignar Nivel";
-    console.log("hola soy niveles referentes", response);
   } catch (error) {
     console.log(error);
   }
 }
 
 const filteredReferidos = computed(() => {
-  return useReferidos.referidos.reverse().filter(referido => {
+  return referidos.value.reverse().filter(referido => {
     return (referido.nombre.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       referido.apellido.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
       referido.cedula.includes(searchQuery.value) ||
@@ -96,7 +99,6 @@ async function filtrarPorCedulaReferente() {
   msgButton.value = "";
   try {
     const response = await useReferentes.getPorCedula(cedula.value);
-    console.log(response);
     if (useReferentes.estatus === 200 && response.length > 0) {
       nombreReferente.value = response[0].nombre;
       apellidoReferente.value = response[0].apellido;
@@ -132,7 +134,6 @@ async function filtrarPorCedulaReferido() {
   msgButton.value = "";
   try {
     const response = await useReferentes.getPorCedulaReferido(cedulaReferido.value);
-    console.log("h", response);
 
     if (useReferentes.estatus === 200) {
       nombreReferido.value = response.idReferido.nombre;
@@ -204,11 +205,10 @@ async function confirmarAsignacion() {
           msgNivelReferente.value = "";
         }, 5000);
       } else if (useReferentes.estatus === 400) {
-        console.log("No se ha seleccionado ningún nivel");
         loadingConfirmacion.value = false;
       }
     } catch (error) {
-      console.log('Error al editar:', error);
+      console.log(error);
       loadingConfirmacion.value = false;
     }
   }
@@ -357,29 +357,36 @@ onMounted(() => {
           placeholder="Buscar cualquier campo...">
       </div>
 
-      <div class="col-md-4 px-5" v-for="(referido, index) in filteredReferidos" :key="index">
-        <div class="card mb-4">
-          <div class="card-body">
-            <div class="d-flex align-items-center gap-2">
-              <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
+      <div v-if="isLoading" class="text-center">
+        <div class="spinner-border" role="status" id="spinner-border">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+      </div>
+
+      <div v-else class="row">
+        <div class="col-md-4 px-5" v-for="(referido, index) in filteredReferidos" :key="index">
+          <div class="card mb-4">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fas fa-user-circle" style="font-size: 36px; color: #666;"></i>
+                <VMenu class="vmenu">
+                  <h5 class="card-title nombre">{{ referido.nombre }} {{ referido.apellido }}</h5>
+                  <template #popper>
+                    <div class="descripVmenu">{{ referido.nombre }} {{ referido.apellido }}</div>
+                  </template>
+                </VMenu>
+              </div>
+              <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
+              <p class="card-text">Correo: {{ referido.correo }}</p>
+              <p class="card-text">Teléfono: {{ referido.telefono }}</p>
+              <p class="card-text">Método: {{ referido.metodo }}</p>
               <VMenu class="vmenu">
-                <h5 class="card-title nombre">{{ referido.nombre }} {{ referido.apellido }}</h5>
+                <p class="opinion">Opinión: {{ referido.opinion }}</p>
                 <template #popper>
-                  <div class="descripVmenu">{{ referido.nombre }} {{ referido.apellido }}</div>
+                  <div class="descripVmenu">{{ referido.opinion }}</div>
                 </template>
               </VMenu>
-
             </div>
-            <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
-            <p class="card-text">Correo: {{ referido.correo }}</p>
-            <p class="card-text">Teléfono: {{ referido.telefono }}</p>
-            <p class="card-text">Método: {{ referido.metodo }}</p>
-            <VMenu class="vmenu">
-              <p class="opinion">Opinión: {{ referido.opinion }}</p>
-              <template #popper>
-                <div class="descripVmenu">{{ referido.opinion }}</div>
-              </template>
-            </VMenu>
           </div>
         </div>
       </div>
@@ -432,7 +439,8 @@ onMounted(() => {
 
                     <!-- Botón para asignar nivel -->
                     <div class="text-center mt-3">
-                      <button value="Buscar" class="btn btn-primary fw-bold fs-5 text-uppercase" @click="mostrarTablaNiveles">
+                      <button value="Buscar" class="btn btn-primary fw-bold fs-5 text-uppercase"
+                        @click="mostrarTablaNiveles">
                         <div v-if="loadNivel">
                           <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                         </div>
@@ -467,7 +475,8 @@ onMounted(() => {
                         </tbody>
                       </table>
                       <div class="text-center mt-3">
-                        <button class="btn btn-success fw-bold fs-5 text-uppercase" @click="mostrarModalConfirmacion">Enviar</button>
+                        <button class="btn btn-success fw-bold fs-5 text-uppercase"
+                          @click="mostrarModalConfirmacion">Enviar</button>
                       </div>
 
 
@@ -483,7 +492,7 @@ onMounted(() => {
                             </div>
                             <div class="modal-body">
                               <p>¿Está seguro que desea asignarle el {{ nivelSeleccionado.nombre }} a {{ nombreReferente
-                              }} {{ apellidoReferente }} con la cédula {{ cedula }}?</p>
+                                }} {{ apellidoReferente }} con la cédula {{ cedula }}?</p>
                             </div>
                             <div class="modal-footer">
                               <button @click="confirmarAsignacion" class="btn btn-success"
@@ -492,7 +501,8 @@ onMounted(() => {
                                   aria-hidden="true"></span>
                                 <span v-if="!loadingConfirmacion">Sí</span>
                               </button>
-                              <button @click="cancelarAsignacion" class="btn btn-danger" :disabled="loadingConfirmacion">
+                              <button @click="cancelarAsignacion" class="btn btn-danger"
+                                :disabled="loadingConfirmacion">
                                 No
                               </button>
                             </div>
@@ -551,7 +561,8 @@ onMounted(() => {
 
                 <div class="row justify-content-center">
                   <div class="col-6 p-4">
-                    <button value="Buscar" class="btn btn-success btn-sm fw-bold fs-5 text-uppercase" @click="filtrarPorCedulaReferido">
+                    <button value="Buscar" class="btn btn-success btn-sm fw-bold fs-5 text-uppercase"
+                      @click="filtrarPorCedulaReferido">
                       <div v-if="loadIngresar">
                         <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
                       </div>
@@ -585,7 +596,8 @@ onMounted(() => {
             </div>
 
             <!-- Mostrar referente de la cédula digitada -->
-            <div class="container p-3" v-if="mostrar" style="display: flex; flex-direction: column; align-items: center;">
+            <div class="container p-3" v-if="mostrar"
+              style="display: flex; flex-direction: column; align-items: center;">
               <table>
                 <tr>
                   <th>Nombre</th>
@@ -657,6 +669,12 @@ onMounted(() => {
 
 .form-control {
   border: 1px solid #282727;
+}
+
+#spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #666;
 }
 
 .opinion {

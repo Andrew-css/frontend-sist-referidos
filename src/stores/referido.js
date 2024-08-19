@@ -17,7 +17,6 @@ export const useStoreReferido = defineStore(
     const getAll = async () => {
       try {
         const response = await axios.get(`${modelo}/all`);
-        console.log(response);
         referidos.value = response.data;
         estatus.value = response.status;
         return response.data;
@@ -30,7 +29,6 @@ export const useStoreReferido = defineStore(
     const getPorId = async (id) => {
       try {
         const response = await axios.get(`${modelo}/buscarId/${id}`);
-        console.log(response);
         referidoID.value = response;
         estatus.value = response.status;
         return response.data;
@@ -43,7 +41,6 @@ export const useStoreReferido = defineStore(
     const getPorNombre = async (nombre) => {
       try {
         const response = await axios.get(`${modelo}/buscarNombre/${nombre}`);
-        console.log(response);
         referidoNombre.value = response.data;
         estatus.value = response.status;
         return response.data;
@@ -56,10 +53,8 @@ export const useStoreReferido = defineStore(
     const agregar = async (data) => {
       try {
         const response = await axios.post(`${modelo}/registro`, data);
-        console.log("hola soy nuevo referido", response);
         estatus.value = response.status;
         nuevoReferido.value = response.data._id;
-        console.log("soy nuevo referido", nuevoReferido);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -72,7 +67,6 @@ export const useStoreReferido = defineStore(
       try {
         const response = await axios.put(`${modelo}/editar/${id}`, data);
         estatus.value = response.status;
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -83,7 +77,6 @@ export const useStoreReferido = defineStore(
     const activar = async (id) => {
       try {
         const response = await axios.put(`${modelo}/activar/${id}`);
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -94,7 +87,6 @@ export const useStoreReferido = defineStore(
     const inactivar = async (id) => {
       try {
         const response = await axios.put(`${modelo}/inactivar/${id}`);
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);

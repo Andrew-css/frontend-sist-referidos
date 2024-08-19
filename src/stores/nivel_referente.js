@@ -17,7 +17,6 @@ export const useStoreNivelReferente = defineStore(
     const getAll = async () => {
       try {
         const response = await axios.get(`${modelo}/all`);
-        console.log("nivel embajador", response);
         nivelReferentes.value = response.data;
         estatus.value = response.status;
         return response.data;
@@ -30,7 +29,6 @@ export const useStoreNivelReferente = defineStore(
     const getPorId = async (id) => {
       try {
         const response = await axios.get(`${modelo}/buscarId/${id}`);
-        console.log(response);
         nivelReferenteID.value = response.data;
         estatus.value = response.status;
         return response.data;
@@ -43,7 +41,6 @@ export const useStoreNivelReferente = defineStore(
     const getPorNombre = async (nombre) => {
       try {
         const response = await axios.get(`${modelo}/buscarNombre/${nombre}`);
-        console.log(response);
         nivelReferenteNombre.value = response.data;
         estatus.value = response.status;
         return response.data;
@@ -56,10 +53,8 @@ export const useStoreNivelReferente = defineStore(
     const agregar = async (data) => {
       try {
         const response = await axios.post(`${modelo}/registro`, data);
-        console.log("Nuevo nivel referente", response);
         estatus.value = response.status;
         nuevoNivelReferente.value = response.data._id;
-        console.log("Nuevo nivel referente", nuevoNivelReferente);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -72,7 +67,6 @@ export const useStoreNivelReferente = defineStore(
       try {
         const response = await axios.put(`${modelo}/editar/${id}`, data);
         estatus.value = response.status;
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -83,7 +77,6 @@ export const useStoreNivelReferente = defineStore(
     const activar = async (id) => {
       try {
         const response = await axios.put(`${modelo}/activar/${id}`);
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);
@@ -94,7 +87,6 @@ export const useStoreNivelReferente = defineStore(
     const inactivar = async (id) => {
       try {
         const response = await axios.put(`${modelo}/inactivar/${id}`);
-        console.log(response);
         return response.data;
       } catch (error) {
         console.log(error);

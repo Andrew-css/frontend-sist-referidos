@@ -39,7 +39,6 @@ const Login = async () => {
             loadIngresar.value = false;
             msgButton.value = "Ingresar";
             goToResena();
-            console.log("Login exitoso")
         } else if (useUsuarios.estatus === 400) {
             msgValidacion.value = useUsuarios.validacion
             loadIngresar.value = false;
@@ -60,7 +59,7 @@ const Login = async () => {
             return;
         }
     } catch (error) {
-        console.log('Error al logearse:', error);
+        console.log(error);
         loadIngresar.value = false;
         msgButton.value = "Ingresar";
     }

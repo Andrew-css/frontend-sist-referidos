@@ -26,7 +26,6 @@ async function nuevaPassword() {
     loadNuevaPass.value = true;
     msgButton.value = "";
 
-    console.log(data.value)
     const response = await useUsuario.nuevaPassword(data.value);
 
     if (!response) return;
