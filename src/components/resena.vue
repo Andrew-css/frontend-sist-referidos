@@ -324,7 +324,7 @@ onMounted(() => {
             </li>
             <li class="nav-item">
               <button class="btn btn-dark fw-bold" data-bs-toggle="modal" data-bs-target="#modalBuscarReferentes">
-                Buscar embajador
+                Ver referido
               </button>
             </li>
             <li class="nav-item">
@@ -376,12 +376,27 @@ onMounted(() => {
                   </template>
                 </VMenu>
               </div>
-              <p class="card-text mt-2">Cédula: {{ referido.cedula }} </p>
-              <p class="card-text">Correo: {{ referido.correo }}</p>
-              <p class="card-text">Teléfono: {{ referido.telefono }}</p>
-              <p class="card-text">Método: {{ referido.metodo }}</p>
+              <div class="card-text mt-2 d-flex align-items-center gap-2">
+                <i class="fas fa-id-card mr-2"></i>
+                <span>{{ referido.cedula }}</span>
+              </div>
+              <div class="card-text d-flex align-items-center gap-2">
+                <i class="fas fa-envelope mr-2"></i>
+                <span>{{ referido.correo }}</span>
+              </div>
+              <div class="card-text d-flex align-items-center gap-2">
+                <i class="fas fa-phone mr-2"></i>
+                <span>{{ referido.telefono }}</span>
+              </div>
+              <div class="card-text d-flex align-items-center gap-2">
+                <i class="fas fa-bullhorn mr-2"></i>
+                <span>{{ referido.metodo }}</span>
+              </div>
               <VMenu class="vmenu">
-                <p class="opinion">Opinión: {{ referido.opinion }}</p>
+                <div class="d-flex align-items-center gap-2">
+                  <i class="fas fa-comment-dots mr-2"></i>
+                  <span class="opinion">{{ referido.opinion }}</span>
+                </div>
                 <template #popper>
                   <div class="descripVmenu">{{ referido.opinion }}</div>
                 </template>
@@ -390,6 +405,7 @@ onMounted(() => {
           </div>
         </div>
       </div>
+
 
       <!-- Modal buscar referidos del referente/embajador-->
       <div class="modal fade" id="modalBuscarReferidos" tabindex="-1" aria-labelledby="modalBuscarReferidosLabel"
@@ -549,7 +565,7 @@ onMounted(() => {
         <div class="modal-dialog">
           <div class="modal-content">
             <div class="modal-header">
-              <h5 class="modal-title" id="modalBuscarReferentesLabel">Buscar embajador</h5>
+              <h5 class="modal-title" id="modalBuscarReferentesLabel">Buscar información del referido</h5>
               <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body" style="width: 100%;">
